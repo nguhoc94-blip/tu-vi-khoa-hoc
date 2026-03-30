@@ -1,0 +1,3 @@
+Đây là dữ liệu lá số (JSON) cho bản đọc PAID đầy đủ. (Chưa gọi API ở bước MVP này.)
+
+{{JSON_HOSO}}

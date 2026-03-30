@@ -1,0 +1,3 @@
+Dưới đây là chart_json (lá số đã chuẩn hóa, mock) dưới dạng JSON. Hãy viết teaser miễn phí theo system prompt.
+
+{{JSON_HOSO}}

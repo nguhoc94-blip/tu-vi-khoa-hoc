@@ -1,0 +1,124 @@
+### TuVi backend — REST Client (VS Code / IntelliJ)
+@base = http://127.0.0.1:8000
+
+### 1) Health
+GET {{base}}/health
+
+### 2) Solar hợp lệ → 200
+POST {{base}}/generate-reading
+Content-Type: application/json
+
+{
+  "full_name": "Nguyen Van A",
+  "birth_day": 15,
+  "birth_month": 1,
+  "birth_year": 1995,
+  "birth_hour": 16,
+  "birth_minute": 30,
+  "gender": "male",
+  "calendar_type": "solar",
+  "is_leap_lunar_month": false
+}
+
+### 3) Solar + leap=true → 200, normalize leap=false, log solar_calendar_leap_flag_overridden_to_false
+POST {{base}}/generate-reading
+Content-Type: application/json
+
+{
+  "full_name": "Nguyen Van A",
+  "birth_day": 15,
+  "birth_month": 1,
+  "birth_year": 1995,
+  "birth_hour": 16,
+  "birth_minute": 30,
+  "gender": "male",
+  "calendar_type": "solar",
+  "is_leap_lunar_month": true
+}
+
+### 4) Lunar thiếu leap → 422 MISSING_IS_LEAP_LUNAR_MONTH
+POST {{base}}/generate-reading
+Content-Type: application/json
+
+{
+  "full_name": "Nguyen Van A",
+  "birth_day": 15,
+  "birth_month": 1,
+  "birth_year": 1995,
+  "birth_hour": 16,
+  "birth_minute": 30,
+  "gender": "male",
+  "calendar_type": "lunar"
+}
+
+### 5) OpenAI: unset OPENAI_API_KEY hoặc key sai → 200, teaser = mock, log openai_teaser_fallback_mock
+# (Chạy server không set OPENAI_API_KEY hoặc key không hợp lệ)
+POST {{base}}/generate-reading
+Content-Type: application/json
+
+{
+  "full_name": "Nguyen Van A",
+  "birth_day": 15,
+  "birth_month": 1,
+  "birth_year": 1995,
+  "birth_hour": 16,
+  "birth_minute": 30,
+  "gender": "male",
+  "calendar_type": "solar",
+  "is_leap_lunar_month": false
+}
+
+### 6) Messenger webhook verify (token đúng)
+GET {{base}}/webhook?hub.mode=subscribe&hub.verify_token=test_verify_token&hub.challenge=12345
+
+### 7) Messenger webhook text event sample
+POST {{base}}/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "PAGE_ID",
+      "time": 1710000000,
+      "messaging": [
+        {
+          "sender": { "id": "USER_123" },
+          "recipient": { "id": "PAGE_ID" },
+          "timestamp": 1710000001,
+          "message": {
+            "mid": "m_1",
+            "text": "start"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### 8) Messenger webhook non-text sample
+POST {{base}}/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "PAGE_ID",
+      "time": 1710000000,
+      "messaging": [
+        {
+          "sender": { "id": "USER_456" },
+          "recipient": { "id": "PAGE_ID" },
+          "timestamp": 1710000001,
+          "message": {
+            "mid": "m_2",
+            "attachments": [
+              { "type": "image", "payload": { "url": "https://example.com/a.jpg" } }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

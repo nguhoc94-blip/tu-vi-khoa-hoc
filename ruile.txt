@@ -1,0 +1,365 @@
+BÁO CÁO TỔNG GIÁM ĐỐC
+V/v: Tổng hợp RULE CUỐI để triển khai engine lập lá số tử vi MVP v1
+
+1. Kết luận điều hành
+
+Đã chốt một luật vận hành duy nhất cho MVP v1.
+
+Nguyên tắc cao nhất:
+
+một rule set duy nhất
+deterministic
+không trộn trường phái
+không tự đoán
+cùng input phải ra cùng chart
+
+Tên rule set nội bộ:
+
+tuvi_mvp_v1
+2. RULE CUỐI ĐÃ CHỐT
+2.1. Input gốc
+
+MVP nhận đúng các field user-facing sau:
+
+full_name
+birth_day
+birth_month
+birth_year
+birth_hour
+birth_minute
+gender
+calendar_type
+is_leap_lunar_month
+
+System gán cứng:
+
+timezone = Asia/Bangkok
+rule_set_id = tuvi_mvp_v1
+2.2. Quy tắc giờ sinh
+
+Chốt dùng:
+
+giờ dân dụng hiện đại
+chia theo 12 địa chi, mỗi chi 2 giờ
+
+Mapping chuẩn:
+
+ty = 23:00–00:59
+suu = 01:00–02:59
+dan = 03:00–04:59
+mao = 05:00–06:59
+thin = 07:00–08:59
+ti = 09:00–10:59
+ngo = 11:00–12:59
+mui = 13:00–14:59
+than = 15:00–16:59
+dau = 17:00–18:59
+tuat = 19:00–20:59
+hoi = 21:00–22:59
+
+Không dùng giờ Mặt Trời trong MVP v1.
+
+2.3. Quy tắc ngày sinh
+
+Chốt dùng:
+
+giữ nguyên ngày dân dụng user nhập
+không tự đổi ngày ở khung 23:00–23:59
+
+Nghĩa là:
+
+sinh lúc 23:30 vẫn giữ nguyên birth_day/birth_month/birth_year như user đã nhập
+chỉ map giờ sang ty
+không tự đẩy sang ngày hôm sau
+2.4. Quy tắc lịch
+
+Chốt dùng:
+
+dùng một engine/thư viện quy đổi lịch cố định
+không đổi nguồn quy đổi giữa các lần chạy
+
+Quy tắc:
+
+nếu calendar_type = solar:
+quy đổi sang lunar
+ép is_leap_lunar_month = false
+nếu calendar_type = lunar:
+bắt buộc phải có is_leap_lunar_month = true|false
+quy đổi sang solar để đối chiếu nội bộ
+2.5. Quy tắc an Mệnh
+
+Chốt dùng:
+
+từ Dần = tháng 1
+đếm thuận đến tháng sinh âm lịch
+từ vị trí đó lấy Tý làm mốc giờ
+đếm nghịch đến giờ sinh
+vị trí dừng = menh_position
+2.6. Quy tắc an Thân
+
+Chốt dùng:
+
+cùng điểm gốc với an Mệnh
+từ mốc Tý
+đếm thuận đến giờ sinh
+vị trí dừng = than_position
+2.7. Quy tắc tính Cục
+
+Chốt output chuẩn:
+
+thuy_2
+moc_3
+kim_4
+tho_5
+hoa_6
+
+Quy tắc triển khai:
+
+tính từ menh_position + can năm âm lịch
+dùng bảng tra khóa cứng trong rulebook nội bộ
+không để Cursor tự suy luận
+2.8. Quy tắc âm dương + giới tính
+
+Chốt dùng:
+
+can dương: giap, binh, mau, canh, nham
+can âm: at, dinh, ky, tan, quy
+
+Mapping:
+
+dương + nam = duong_nam
+âm + nữ = am_nu
+âm + nam = am_nam
+dương + nữ = duong_nu
+2.9. Quy tắc chiều đại vận
+
+Chốt dùng:
+
+duong_nam, am_nu → forward
+am_nam, duong_nu → backward
+2.10. Quy tắc tuổi bắt đầu đại vận đầu
+
+Chốt dùng:
+
+age_start_first = cuc_number
+
+Nghĩa là:
+
+thuy_2 → bắt đầu 2
+moc_3 → bắt đầu 3
+kim_4 → bắt đầu 4
+tho_5 → bắt đầu 5
+hoa_6 → bắt đầu 6
+2.11. Quy tắc xác định đại vận hiện tại
+
+Chốt dùng:
+
+engine không tự tính tuổi hiện tại theo DOB
+tầng app/backend truyền:
+current_age_override
+hoặc as_of_date + age calculation đã khóa ở tầng ngoài
+
+Trong engine:
+
+nếu có current_age_override:
+tính current_major_fortune_index
+nếu không có:
+current_major_fortune_index = null
+2.12. Quy tắc sao trong MVP
+
+Chốt support:
+
+chỉ 14 chính tinh
+
+Danh sách chuẩn:
+
+tu_vi
+thien_co
+thai_duong
+vu_khuc
+thien_dong
+liem_trinh
+thien_phu
+thai_am
+tham_lang
+cu_mon
+thien_tuong
+thien_luong
+that_sat
+pha_quan
+
+Chốt chưa support:
+
+phụ tinh
+hóa lộc/quyền/khoa/kỵ
+trường sinh
+tiểu hạn
+lưu niên
+text luận giải
+3. PHẠM VI MVP v1
+Có thật
+normalize input
+solar/lunar conversion
+can chi
+mệnh
+thân
+cục
+12 houses
+14 chính tinh
+major fortunes
+Tạm giản lược
+secondary_stars = []
+không làm các lớp vận phụ
+không chấm điểm
+không viết lời luận
+4. CHART JSON THẬT CẦN TRẢ RA
+4.1. Nhóm bắt buộc
+schema_version
+rule_set_id
+timezone
+input_normalized
+conversion
+chart_metadata
+houses
+major_fortunes
+validation
+4.2. 12 houses tối thiểu
+
+Fixed order:
+
+menh
+phu_mau
+phuc_duc
+dien_trach
+quan_loc
+no_boc
+thien_di
+tat_ach
+tai_bach
+tu_tuc
+phu_the
+huynh_de
+
+Mỗi house bắt buộc có:
+
+house_index
+house_code
+branch
+is_menh_house
+is_than_house
+main_stars
+
+Optional:
+
+secondary_stars
+
+Quy ước:
+
+luôn đủ 12 houses
+main_stars luôn là array
+secondary_stars mặc định []
+4.3. Major fortunes tối thiểu
+
+Mỗi đại vận cần có:
+
+index
+age_start
+age_end
+house_index
+house_code
+branch
+main_stars_snapshot
+
+Ngoài ra chart nên có:
+
+current_context.as_of_date
+current_context.current_age
+current_context.current_major_fortune_index
+5. THỨ TỰ XỬ LÝ CHUẨN TRONG ENGINE
+nhận input user-facing
+validate required fields
+normalize types và values
+gán timezone, rule_set_id
+validate chéo calendar_type và leap month
+quy đổi solar/lunar
+tính can chi năm/tháng/ngày/giờ
+tính menh_position
+tính than_position
+tính cuc
+tính am_duong_gender_group
+tính major_fortune_direction
+khởi tạo 12 houses
+gắn branch cho 12 houses
+an 14 chính tinh
+gắn is_menh_house, is_than_house
+sinh major_fortunes
+tính current_major_fortune_index nếu có override
+chạy validation cuối
+trả chart JSON thật
+6. CÁC NGUYÊN TẮC CẤM
+
+Không được:
+
+trộn nhiều trường phái trong một chart
+tự đổi ngày ở 23:00–23:59
+dùng giờ Mặt Trời trong v1
+tự đoán rule còn mơ hồ
+tự thêm sao ngoài phạm vi đã chốt
+sinh text luận giải trong engine
+
+Nguyên tắc bắt buộc:
+
+không có rule rõ thì không implement
+field nào chưa support thì để rỗng có chủ đích hoặc []
+cùng input phải ra cùng output
+7. KHI NÀO MỚI LÀM “LÁ SỐ ĐỐI CHIẾU”
+
+Chỉ làm thêm chart phụ khi rơi vào 1 trong 3 tình huống:
+
+giờ sinh sát biên
+giờ sinh chỉ ước lượng
+cần nghiên cứu sâu theo trường phái khác
+
+Khi đó mới cho phép dựng thêm:
+
+bản giữ nguyên ngày dân dụng
+bản đổi ngày theo giờ Tý
+tối đa một bản hiệu chỉnh theo giờ Mặt Trời
+
+Nhưng:
+
+chỉ dùng để đối chiếu
+không trộn dữ liệu giữa các bản
+8. CHỈ ĐẠO TRIỂN KHAI
+Đối với TuVi Engine
+
+Phải xuất ngay:
+
+chart_json_schema_v1_final
+lookup tables cuối
+acceptance outputs
+rulebook nội bộ khóa cứng
+Đối với Cursor
+
+Chỉ được code theo rule đã chốt ở báo cáo này:
+
+thay mock bằng engine thật MVP
+không tự đoán luật
+cập nhật README.md làm build report sau mỗi build
+9. KẾT LUẬN CUỐI CÙNG
+
+RULE CUỐI ĐÃ CHỐT CHO MVP v1 là:
+
+giờ dân dụng hiện đại
+12 chi, mỗi chi 2 giờ
+giữ nguyên ngày nhập
+không dùng giờ Mặt Trời
+một rule set duy nhất tuvi_mvp_v1
+an Mệnh, Thân, Cục, đại vận theo bảng tra khóa cứng
+support 14 chính tinh
+chưa support phụ tinh
+đại vận hiện tại lấy từ current_age_override
+
+Đây là bộ luật đủ sạch, đủ chặt, đủ deterministic để bắt đầu build engine thật.
+
+Bước tiếp theo nên làm ngay: đóng gói báo cáo này thành SPEC THI CÔNG CUỐI cho Cursor.
