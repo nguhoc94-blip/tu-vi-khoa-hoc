@@ -8,9 +8,8 @@ CONTRACT:
 - If OpenAI is unavailable or returns invalid JSON → returns {} (safe fallback).
 - Never raises; callers can always proceed with an empty extraction.
 
-The extraction is a cheap, small call (max_tokens=300). It runs on every
-incoming message, but does not replace the conversational response — it feeds
-birth_data accumulation only.
+The extraction runs on every incoming message and feeds birth_data accumulation only.
+Uses max_completion_tokens (compatible with gpt-5.4+), no temperature param.
 """
 
 from __future__ import annotations
@@ -25,9 +24,9 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
-_EXTRACTION_MODEL = "gpt-4o-mini"  # always use fast/cheap model for extraction
+_EXTRACTION_MODEL_DEFAULT = "gpt-5.4"
 _EXTRACTION_TIMEOUT = 10.0
-_EXTRACTION_MAX_TOKENS = 300
+_EXTRACTION_MAX_COMPLETION_TOKENS = 300
 
 # Allowed output keys — anything outside this set is stripped (safety guard)
 _ALLOWED_KEYS: frozenset[str] = frozenset(
@@ -93,6 +92,7 @@ def extract_birth_fields(text: str, *, request_id: str) -> dict[str, Any]:
     Returns {} on any error (OpenAI unavailable, invalid JSON, etc.).
     """
     api_key = (os.environ.get("OPENAI_API_KEY") or "").strip()
+    model = (os.environ.get("OPENAI_MODEL") or "").strip() or _EXTRACTION_MODEL_DEFAULT
     if not api_key:
         logger.warning(
             "birth_extractor_skip request_id=%s event=extractor_skip reason=missing_api_key",
@@ -104,12 +104,12 @@ def extract_birth_fields(text: str, *, request_id: str) -> dict[str, Any]:
         system_prompt = _load_system_prompt()
         client = OpenAI(api_key=api_key, timeout=_EXTRACTION_TIMEOUT)
         completion = client.chat.completions.create(
-            model=_EXTRACTION_MODEL,
+            model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text},
             ],
-            temperature=0,
+            max_completion_tokens=_EXTRACTION_MAX_COMPLETION_TOKENS,
         )
         raw_content = (completion.choices[0].message.content or "").strip()
 
