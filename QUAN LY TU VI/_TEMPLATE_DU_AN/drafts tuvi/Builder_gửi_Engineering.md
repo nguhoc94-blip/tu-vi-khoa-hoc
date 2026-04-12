@@ -47,7 +47,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | `GET https://tuvi-backend-ocgd.onrender.com/health` | `200` — `status=ok` |
 | `GET …/readiness` | `200` — `status=ready` |
 
-**Git commit remediation (đẩy lên `main`):** `004979c` (security remediation) + `a97b224` (bổ sung SHA vào báo cáo)
+**Git commit remediation (đẩy lên `main`):** `004979c` (security remediation) + `a97b224` / `4d95d07` (chỉnh báo cáo) + `b9d9efe` (cập nhật `git_sha_for_evidence.txt`). **HEAD evidence:** `b9d9efe`.
 
 ### 5. Kết luận cho Engineering
 
