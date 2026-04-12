@@ -25,7 +25,7 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
-_EXTRACTION_MODEL_DEFAULT = "gpt-4o-mini"
+_EXTRACTION_MODEL = "gpt-4o-mini"  # always use fast/cheap model for extraction
 _EXTRACTION_TIMEOUT = 10.0
 _EXTRACTION_MAX_TOKENS = 300
 
@@ -100,20 +100,15 @@ def extract_birth_fields(text: str, *, request_id: str) -> dict[str, Any]:
         )
         return {}
 
-    model = (
-        (os.environ.get("OPENAI_MODEL") or "").strip() or _EXTRACTION_MODEL_DEFAULT
-    )
-
     try:
         system_prompt = _load_system_prompt()
         client = OpenAI(api_key=api_key, timeout=_EXTRACTION_TIMEOUT)
         completion = client.chat.completions.create(
-            model=model,
+            model=_EXTRACTION_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text},
             ],
-            max_tokens=_EXTRACTION_MAX_TOKENS,
             temperature=0,
         )
         raw_content = (completion.choices[0].message.content or "").strip()
