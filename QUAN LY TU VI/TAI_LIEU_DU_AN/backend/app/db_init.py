@@ -69,12 +69,14 @@ def _is_applied(conn, version: str) -> bool:
             )
             return cur.fetchone() is not None
         except errors.UndefinedTable:
+            conn.rollback()
             return False
 
 
 def run_migrations() -> list[str]:
     """
     Applies sql/migrations/001_*.sql … in order. Returns list of newly applied versions.
+    Each migration runs in its own transaction to avoid aborting subsequent ones.
     """
     applied: list[str] = []
     paths = _migration_paths()
@@ -82,20 +84,25 @@ def run_migrations() -> list[str]:
         logger.warning("no_migration_files dir=%s", _MIGRATIONS_DIR)
         return applied
 
-    with get_connection() as conn:
-        for path in paths:
-            version = _migration_version(path)
+    for path in paths:
+        version = _migration_version(path)
+        with get_connection() as conn:
             if _is_applied(conn, version):
                 continue
             sql_text = path.read_text(encoding="utf-8")
-            conn.execute(sql_text)
-            with conn.cursor() as cur:
-                cur.execute(
-                    "INSERT INTO schema_migrations (version) VALUES (%s)",
-                    (version,),
-                )
-            applied.append(version)
-            logger.info("migration_applied version=%s file=%s", version, path.name)
+            try:
+                conn.execute(sql_text)
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO schema_migrations (version) VALUES (%s)",
+                        (version,),
+                    )
+                applied.append(version)
+                logger.info("migration_applied version=%s file=%s", version, path.name)
+            except Exception as exc:
+                conn.rollback()
+                logger.error("migration_failed version=%s err=%s", version, exc)
+                raise
 
     return applied
 
