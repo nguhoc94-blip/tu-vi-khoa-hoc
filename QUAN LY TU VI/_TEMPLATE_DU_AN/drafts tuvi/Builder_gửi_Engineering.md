@@ -1,8 +1,62 @@
 ## BUILDER → ENGINEERING
 Từ: Builder  
 Gửi: Engineering  
-Ngày: 2026-04-11 (**cập nhật evidence & đối chiếu memo Engineering: 2026-04-12**)  
-Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong)**  
+Ngày: 2026-04-11 (**cập nhật deploy production & báo cáo E: 2026-04-12**)  
+Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production)**  
+
+---
+
+## BÁO CÁO E — NHIỆM VỤ ĐÃ HOÀN THÀNH (Deploy Render Production — 2026-04-12)
+
+**Trạng thái:** backend đã **live** trên Render; `/health` và `/readiness` xác nhận OK sau khi sửa lỗi build/start.
+
+### 1. URL & service
+
+| Mục | Giá trị |
+|-----|---------|
+| **Public URL** | `https://tuvi-backend-ocgd.onrender.com` |
+| **Webhook** | `https://tuvi-backend-ocgd.onrender.com/webhook` |
+| **Render service** | `tuvi-backend` (slug `tuvi-backend-ocgd`) |
+| **Region** | Oregon (US West) — cùng region với Postgres Free `tuvi-db` |
+| **GitHub** | `https://github.com/nguhoc94-blip/tu-vi-khoa-hoc` (branch `main`) |
+
+### 2. Bằng chứng kỹ thuật (sau deploy live)
+
+| Kiểm tra | Kết quả |
+|----------|---------|
+| `GET /health` | `200` — `{"status":"ok","service":"tuvi-backend"}` |
+| `GET /readiness` | `200` — `{"status":"ready"}` (DB PostgreSQL Render kết nối OK) |
+| Migrations | Chạy qua bootstrap `db_init` trên DB production (fresh) |
+
+### 3. Commit liên quan deploy (sau `b481e3a`)
+
+| SHA | Nội dung |
+|-----|----------|
+| `f5a7204` | Thêm `python-multipart` vào `requirements.txt` — sửa lỗi FastAPI Form khi start trên Render |
+| `9f9d874` | `db_init.py`: rollback sau `UndefinedTable` trong `_is_applied`; mỗi migration một connection — sửa `InFailedSqlTransaction` khi DB trống |
+
+**HEAD production (khuyến nghị ghi evidence):** `9f9d874`
+
+### 4. Cấu hình đã áp dụng trên Render (tóm tắt — không ghi secret)
+
+- **Root Directory:** `QUAN LY TU VI/TAI_LIEU_DU_AN/backend`
+- **Build:** `pip install -r requirements.txt`
+- **Start:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Health check path:** `/health` (khóa Engineering)
+- **Env:** `DATABASE_URL` (Postgres Render), OpenAI, Facebook, Messenger blocks, Admin bootstrap, `ADMIN_COOKIE_SECURE=1`, `DEBOUNCE_SECONDS`, v.v. — giá trị thật chỉ trên Render Dashboard
+
+### 5. Việc còn lại cho vận hành / Product
+
+- **Facebook Developer:** cập nhật Callback URL webhook sang `https://tuvi-backend-ocgd.onrender.com/webhook` (Verify Token giữ đúng giá trị đã cấu hình trên Render).
+- **Smoke prod:** tick `docs/smoke_checklist_nhip3.md` trên môi trường production.
+- **Bảo mật:** repo GitHub đã từng chuyển **public** tạm thời để Render API tạo service từ URL; Engineering nên: cài **Render GitHub App** + đặt repo lại **private** + rotate secret nếu đã lộ qua kênh không an toàn.
+
+### 6. Đối chiếu memo Engineering (cập nhật sau deploy)
+
+- **Deploy path Render + runbook:** đã có service thật + runbook vẫn dùng được.
+- **Evidence prod:** URL public + health/readiness như trên; SHA `9f9d874`.
+
+---
 
 ### Đối chiếu `Engineering_gửi_Builder.md` (memo lệnh mở Nhịp 3 — 2026-04-11)
 
@@ -35,12 +89,12 @@ Bảng dưới đây map trực tiếp **Output mong muốn**, **Điều kiện 
 | Retention `webhook_dedupe` = **24h**, không đổi semantics | Có — code + test khóa 24h |
 | Anonymization baseline + audit; route sau auth/RBAC | Có — Nhịp 2 admin + Nhịp 3 privacy |
 | Không kéo scope Nhịp 3 (no platform dashboard mới, no monitoring stack, không sửa 4 lát bridge ngoài hook tối thiểu) | **Nhịp 3 gốc:** không vượt. **Sau lane:** có thay đổi theo **CEO Direct** (model, prompt, lock/debounce) — đã tách mục § *BỔ SUNG SAU TRIỂN KHAI* |
-| Evidence: SHA/artifact, pytest, smoke, runbook; ghi rõ staging vs prod | Có — `git_sha_for_evidence.txt`, `pytest_last_run.txt`, checklist, runbook; prod deploy chưa từ môi trường Builder |
+| Evidence: SHA/artifact, pytest, smoke, runbook; ghi rõ staging vs prod | Có — `git_sha_for_evidence.txt`, `pytest_last_run.txt`, checklist, runbook; **prod Render live** — xem § *BÁO CÁO E* |
 
 #### Lỗi còn lại / blocker
 
 - **Không có blocker** mở lane theo memo.  
-- **Hạn chế:** deploy production Render + tick đủ smoke **staging/prod** do team vận hành/Engineering chạy và đính kèm khi khóa lane production.
+- **Hạn chế:** tick đủ smoke **prod** trên checklist + xác nhận webhook Facebook trỏ đúng URL production (xem § *BÁO CÁO E*).
 
 #### Vượt scope so với memo Engineering
 
@@ -70,11 +124,16 @@ Bảng dưới đây map trực tiếp **Output mong muốn**, **Điều kiện 
 | Migration | `sql/migrations/015_nhip3_placeholder.sql` | No-op có chủ đích (DDL không bắt buộc); chain migration tiếp tục additive |
 | Tests mới | `tests/test_nhip3_health.py`, `test_webhook_payload_limit.py`, `test_log_redact_nhip3.py`, `test_data_subject_unit.py`, `test_webhook_dedupe_cleanup.py` | — |
 
-**Chưa làm / giới hạn:** không deploy thật lên Render từ môi trường Builder; **smoke checklist** và verify webhook production là bằng chứng cần team chạy trên staging/prod. **Không vượt scope** Nhịp 3 (không dashboard platform mới, không đổi 4 lát bridge ngoài guardrail/log).
+**Chưa làm / giới hạn:** **đã deploy production Render** (2026-04-12); cần team **cập nhật webhook Facebook** + tick smoke checklist prod. **Không vượt scope** Nhịp 3 (không dashboard platform mới, không đổi 4 lát bridge ngoài guardrail/log).
 
 **Hướng dẫn team (từng bước):** `backend/docs/TEAM_EVIDENCE_STEPS.md` (pytest local + smoke tay; **SHA Git không bắt buộc** — có thể dùng deploy ID / `GIT_SHA` env / mã release).
 
 **Evidence đề xuất đính kèm lane completion:** định danh bản (SHA **hoặc** tương đương trong `docs/git_sha_for_evidence.txt`), `docs/pytest_last_run.txt`, `smoke_checklist_nhip3.md` đã tick, ảnh `/health` + `/readiness` nếu có.
+
+**Git SHA baseline lớn:** `b481e3a` (feat: add full backend Phase 2 + Render deploy config — 2026-04-12)  
+**Git SHA production live (sau fix):** `9f9d874`  
+**GitHub remote:** [https://github.com/nguhoc94-blip/tu-vi-khoa-hoc](https://github.com/nguhoc94-blip/tu-vi-khoa-hoc) — hiện **public** (tạm cho tích hợp Render API; nên chuyển lại private + GitHub App)  
+**Trạng thái:** ✅ **PUSHED** + ✅ **Render LIVE** — `https://tuvi-backend-ocgd.onrender.com` (chi tiết § *BÁO CÁO E*).
 
 ---
 
@@ -211,6 +270,59 @@ Task C thức → pending=C → acquire lock → XỬ LÝ ✓ (full context)
 | Fix test dedupe isolation | ✅ | Bug phát sinh khi DB thật chạy |
 | **Lock + Debounce race condition** | ✅ | **CEO chỉ đạo** |
 | Pytest 66/66 PASSED | ✅ | Xác nhận không regression |
+
+---
+
+## Hướng dẫn push & deploy Render (bước team cần làm)
+
+### Bước 1 — Tạo GitHub repository
+
+1. Vào [https://github.com/new](https://github.com/new)
+2. **Repository name:** `tu-vi-khoa-hoc`  |  **Owner:** `nguhoc94-blip`
+3. **Visibility:** Private (khuyến nghị)
+4. **Không** chọn Initialize README/gitignore (đã có sẵn trong commit)
+5. Click **Create repository**
+
+### Bước 2 — Push code lên GitHub
+
+Mở terminal trong thư mục `tu vi khoa hoc`:
+
+```powershell
+git push origin main
+```
+
+Nếu bị yêu cầu đăng nhập, dùng Personal Access Token tại [https://github.com/settings/tokens](https://github.com/settings/tokens).
+
+### Bước 3 — Kết nối Render và deploy
+
+1. Vào [https://dashboard.render.com](https://dashboard.render.com)
+2. Click **New** → **Blueprint** → chọn repo `tu-vi-khoa-hoc` → branch `main`
+3. Render tự đọc `render.yaml` ở root; xác nhận service name `tuvi-backend`
+4. Điền **secret** trong tab **Environment** (không nằm trong `render.yaml`):
+
+| Key | Giá trị |
+|-----|---------|
+| `DATABASE_URL` | PostgreSQL URL (Render managed DB hoặc external) |
+| `OPENAI_API_KEY` | Key từ OpenAI |
+| `OPENAI_MODEL` | `gpt-5.4` |
+| `FB_PAGE_ACCESS_TOKEN` | Token Facebook Page |
+| `FB_VERIFY_TOKEN` | Token xác minh webhook |
+| `FB_APP_SECRET` | App Secret Facebook |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email tài khoản admin đầu tiên |
+| `ADMIN_BOOTSTRAP_PASSWORD` | Mật khẩu admin đầu tiên |
+| `MESSENGER_PART_2_BANK_BLOCK` | Nội dung block bank |
+| `MESSENGER_PART_3_CEO_NOTE` | Nội dung CEO note |
+
+5. Click **Apply** → Render build (~2–3 phút)
+
+### Bước 4 — Verify sau deploy
+
+```
+GET https://tuvi-backend.onrender.com/health   → {"status":"ok"}
+GET https://tuvi-backend.onrender.com/readiness → {"status":"ready"}
+```
+
+Sau đó cập nhật Facebook Webhook URL sang domain Render (thay URL ngrok cũ).
 
 ---
 

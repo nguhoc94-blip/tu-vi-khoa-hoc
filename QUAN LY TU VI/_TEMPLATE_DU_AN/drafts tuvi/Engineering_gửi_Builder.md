@@ -89,5 +89,5 @@ Deadline/Timebox:
 - **Báo cáo chính thức:** `drafts tuvi/Builder_gửi_Engineering.md` — có mục **Đối chiếu `Engineering_gửi_Builder.md`** (output, điều kiện done, khóa triển khai, lỗi, scope).
 - **Evidence:** `QUAN LY TU VI/TAI_LIEU_DU_AN/backend/docs/pytest_last_run.txt`, `docs/git_sha_for_evidence.txt`, `docs/smoke_checklist_nhip3.md`, `docs/runbook_deploy.md`, `docs/builder_evidence_nhip3.md`.
 - **Pytest:** 66/66 passed (lần chạy evidence gần nhất ghi trong `pytest_last_run.txt`).
-- **Deploy Render:** Builder không deploy production từ môi trường local; staging/prod smoke theo checklist + runbook do vận hành/Engineering xác nhận.
+- **Deploy Render:** ✅ **Production live** 2026-04-12 — `https://tuvi-backend-ocgd.onrender.com` (chi tiết + evidence `/health` + `/readiness` trong `Builder_gửi_Engineering.md` § *BÁO CÁO E*). Cần team cập nhật webhook Facebook + tick smoke prod.
 - **Phần bổ sung sau Nhịp 3 (CEO):** nằm trong `Builder_gửi_Engineering.md` § *BỔ SUNG SAU TRIỂN KHAI* — ngoài scope Engineering ban đầu, đã ghi rõ nguồn chỉ đạo.

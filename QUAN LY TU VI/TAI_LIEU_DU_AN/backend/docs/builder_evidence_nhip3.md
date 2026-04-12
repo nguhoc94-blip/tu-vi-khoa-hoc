@@ -216,3 +216,18 @@ _(Thời gian tăng so với trước debounce do sleep 1.5s trong background pi
 | Webhook signature verify | ✅ `X-Hub-Signature-256` hợp lệ |
 | Smoke test Messenger live | ✅ Bot nhận và trả lời tin nhắn thật |
 | Race condition fix (Lock+Debounce) | ✅ CEO chỉ đạo — implemented & tested |
+
+---
+
+## 8. Production Render (BÁO CÁO E — 2026-04-12)
+
+| Mục | Giá trị |
+|-----|---------|
+| Public URL | `https://tuvi-backend-ocgd.onrender.com` |
+| Webhook | `https://tuvi-backend-ocgd.onrender.com/webhook` |
+| `GET /health` | `200` — `{"status":"ok","service":"tuvi-backend"}` |
+| `GET /readiness` | `200` — `{"status":"ready"}` |
+| Git HEAD (sau fix deploy) | `9f9d874` |
+| Fix deploy | `python-multipart` trong `requirements.txt`; `db_init.py` rollback + migration per-connection |
+
+**Việc còn lại:** cập nhật Callback URL webhook trên Facebook Developer; tick `smoke_checklist_nhip3.md` cho prod.
