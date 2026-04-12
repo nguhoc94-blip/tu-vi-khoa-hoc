@@ -47,7 +47,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | `GET https://tuvi-backend-ocgd.onrender.com/health` | `200` — `status=ok` |
 | `GET …/readiness` | `200` — `status=ready` |
 
-**Git commit remediation (đẩy lên `main`):** `004979c` — `security: private repo, untrack ngrok.exe, report remediation`
+**Git commit remediation (đẩy lên `main`):** `004979c` (security remediation) + `a97b224` (bổ sung SHA vào báo cáo)
 
 ### 5. Kết luận cho Engineering
 
