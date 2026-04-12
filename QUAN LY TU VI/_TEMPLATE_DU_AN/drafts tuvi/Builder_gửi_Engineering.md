@@ -47,6 +47,8 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | `GET https://tuvi-backend-ocgd.onrender.com/health` | `200` — `status=ok` |
 | `GET …/readiness` | `200` — `status=ready` |
 
+**Git commit remediation (đẩy lên `main`):** `004979c` — `security: private repo, untrack ngrok.exe, report remediation`
+
 ### 5. Kết luận cho Engineering
 
 - **Artifact Git (tracking + visibility):** **Đạt** — không còn `ngrok.exe` trong repo; `.env` không track; repo **private**.
