@@ -13,7 +13,7 @@ push_status: PUSHED to GitHub 2026-04-12
 deploy_status: LIVE on Render 2026-04-12 (health + readiness OK)
 github_repo_visibility: private (after security remediation 2026-04-12)
 ngrok_exe: removed from git tracking (remain local only)
-git_head_after_security_remediation: 4d95d07
+git_head_after_security_remediation: 4b088ec
 
 ## Nếu KHÔNG dùng Git
 # Thay bằng một trong các cách sau (ghi rõ trong báo cáo Engineering):
