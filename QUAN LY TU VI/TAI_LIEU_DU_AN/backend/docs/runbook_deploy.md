@@ -48,6 +48,10 @@
 - `/admin/login` — sau deploy nhớ bootstrap user qua `ADMIN_BOOTSTRAP_*` lần đầu.
 - Ẩn danh baseline: `/admin/privacy` — chỉ writer; mọi thao tác ghi audit.
 
+## GitHub repo private + Render
+
+Nếu repo GitHub chuyển **private**, service Render vẫn build được khi đã kết nối qua **GitHub App** (Dashboard Render → Account / service → kết nối lại nếu deploy báo không pull được). Không lưu PAT trong repo; dùng OAuth/GitHub App của Render.
+
 ## Ghi chú staging vs production
 
 Các bước smoke trong `docs/smoke_checklist_nhip3.md` nên chạy trên **staging** trước; đánh dấu mục nào chưa xác minh trên production thật.

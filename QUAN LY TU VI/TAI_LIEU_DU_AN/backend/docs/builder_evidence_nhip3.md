@@ -231,3 +231,15 @@ _(Thời gian tăng so với trước debounce do sleep 1.5s trong background pi
 | Fix deploy | `python-multipart` trong `requirements.txt`; `db_init.py` rollback + migration per-connection |
 
 **Việc còn lại:** cập nhật Callback URL webhook trên Facebook Developer; tick `smoke_checklist_nhip3.md` cho prod.
+
+---
+
+## 9. Vòng bảo mật khẩn cấp (memo Engineering 2026-04-12)
+
+| Hạng mục | Trạng thái |
+|----------|------------|
+| `.env` không track | OK |
+| `.gitignore` + `ngrok.exe` | Đã ignore; `git rm --cached` khỏi repo |
+| GitHub repo | **private** |
+| `/health` + `/readiness` sau remediation | OK (2026-04-12) |
+| Rotate secret (OpenAI, FB, DB, Render API, GitHub PAT) | **Owner** — xem checklist tên key trong `Builder_gửi_Engineering.md` § *VÒNG KHẮC PHỤC BẢO MẬT* |

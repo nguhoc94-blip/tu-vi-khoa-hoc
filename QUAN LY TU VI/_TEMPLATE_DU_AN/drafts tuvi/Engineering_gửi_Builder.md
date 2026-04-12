@@ -1,93 +1,79 @@
-## GIAO TASK
 Từ: Engineering
 Gửi: Builder
-Ngày: 2026-04-11
+Ngày: 2026-04-12
 Phase: Phase 2
 ---
 Task cần làm:
-Engineering **phê duyệt plan chi tiết Nhịp 3** và cho phép Builder **bắt đầu thi công Nhịp 3** theo đúng phạm vi đã nộp, với các khóa triển khai bổ sung dưới đây. Đây là lệnh mở thi công thực tế sau vòng plan-only.
+Thực hiện **vòng khắc phục bảo mật khẩn cấp cuối lane** trước khi Engineering được phép khóa `LANE COMPLETION REPORT` gửi COO.
 
-Phạm vi giữ nguyên:
-1. Ops / Online readiness
-2. Observability
-3. Trust / Safety
-4. Regression / smoke / evidence để Engineering tổng hợp lane completion cuối lane
+Lý do mở vòng này:
+- Artifact hiện tại cho thấy backend đã live và scope 3 nhịp cơ bản đã hoàn tất.
+- Nhưng Engineering kiểm tra thấy có **rủi ro lộ secret / sai vệ sinh repo** ở mức không thể coi lane là “sạch” để báo COO.
+- Đây là vòng fix hẹp, không mở scope sản phẩm mới.
+
+Phạm vi:
+1. **Xử lý secret hygiene**
+   - bảo đảm file `.env` chứa secret thật **không nằm trong repo trackable** và không tiếp tục xuất hiện trong package bàn giao/code push
+   - bổ sung `.gitignore` phù hợp nếu thiếu
+   - rà lại các file docs/config để không còn secret thật hoặc dữ liệu nhạy cảm bị lộ trong artifact
+   - không ghi lại giá trị secret thật trong report
+
+2. **Xử lý repo/public exposure risk**
+   - nếu repo đang public chỉ để phục vụ deploy, chuyển sang cấu hình an toàn hơn theo hướng Engineering đã note:
+     - GitHub App / kết nối phù hợp
+     - repo private nếu hạ tầng cho phép
+   - nếu không thể đổi ngay do phụ thuộc quyền/owner, phải ghi rõ blocker thực tế và risk còn mở
+
+3. **Rotate / invalidate secret khi cần**
+   - nếu secret có khả năng đã từng xuất hiện trong repo/artifact/public channel:
+     - rotate secret tương ứng
+     - cập nhật secret mới trên môi trường deploy
+     - verify lại service sau rotate
+   - nếu khẳng định một secret **không hề bị lộ**, phải nêu basis rõ ràng; không được kết luận cảm tính
+
+4. **Evidence sau fix**
+   - xác nhận service còn sống sau remediation:
+     - `/health`
+     - `/readiness`
+   - xác nhận artifact bàn giao mới không còn chứa secret thật ở các vị trí không được phép
+   - nêu rõ repo hiện ở trạng thái nào: private / public tạm thời / blocker quyền
 
 Input đã có:
-- `COO_gửi_Engineering.md` (Phase 2 — chỉ báo COO khi lane hoàn tất hoặc có blocker/escalation)
-- lane plan Engineering đã khóa
-- Nhịp 1 và Nhịp 2 đã duyệt xong
-- codebase chuẩn `QUAN LY TU VI/TAI_LIEU_DU_AN/backend/`
-- `Builder_gửi_Engineering.md` (plan chi tiết Nhịp 3)
+- `Builder_gửi_Engineering.md` bản deploy production
+- codebase chuẩn `TAI_LIEU_DU_AN/backend/`
+- `backend.zip` artifact hiện tại
+- runbook / render.yaml / evidence docs hiện có
 
 Output mong muốn:
-1. Thi công xong Nhịp 3 trên codebase chuẩn
-2. Gửi lại `Builder_gửi_Engineering.md` theo format BUILDER REPORT với:
-   - việc đã làm
-   - file đã sửa
-   - build/test đã chạy
-   - kết quả pass/fail
-   - lỗi còn lại
-   - vượt scope hay không
-   - bằng chứng cụ thể
-3. Không gửi COO trực tiếp
+`Builder_gửi_Engineering.md` bản mới theo format **BUILDER REPORT**, bắt buộc có thêm:
+- việc đã làm để xử lý secret hygiene
+- file nào đã thêm/sửa/xóa khỏi tracking
+- repo visibility hiện tại
+- secret nào đã rotate (chỉ nêu tên key, không nêu giá trị)
+- verify sau remediation
+- kết luận:
+  - `đủ sạch để Engineering khóa lane`, hoặc
+  - `chưa đủ` + blocker còn lại
 
 Điều kiện done:
-- Có deploy path Render baseline + runbook deploy/redeploy/restart/rollback/verify webhook
-- `/health` và `/readiness` usable cho vận hành
-- Log redact / trust-safety baseline / anonymization baseline hoạt động
-- Có procedure cleanup `webhook_dedupe`
-- Full pytest pass hoặc nêu rõ fail nào
-- Có smoke evidence đủ để Engineering khóa lane completion report
-
-Khóa triển khai bổ sung từ Engineering:
-1. **Render health check path chốt luôn**
-   - platform health check dùng **`/health`** làm liveness
-   - `/readiness` dùng cho verify DB/readiness trong runbook và smoke
-   - không dùng `/readiness` làm platform liveness mặc định để tránh restart sai khi DB transient fail
-
-2. **Retention `webhook_dedupe` chốt theo lane đã khóa trước đó**
-   - cleanup giữ đúng **24 giờ**
-   - không tự nâng lên N ngày khác nếu không có blocker thật sự
-   - nếu implementation cần batching để tránh lock, được phép làm nhưng không đổi semantics 24h
-
-3. **Trust/Safety baseline chốt theo hướng release đầu**
-   - ưu tiên **anonymization baseline** có audit hơn hard delete toàn phần nếu không bắt buộc xóa vật lý
-   - nếu có route admin cho anonymize/delete phải nằm sau auth + RBAC + audit đã có từ Nhịp 2
-
-4. **Không kéo scope ngoài Nhịp 3**
-   - không mở dashboard platform mới
-   - không thêm monitoring stack riêng
-   - không sửa logic bridge 4 lát trừ hook/log tối thiểu thật sự cần
-
-5. **Evidence cho lane completion bắt buộc**
-   - commit SHA / artifact deploy
-   - output pytest
-   - smoke checklist
-   - runbook
-   - ghi rõ những gì mới chỉ verified ở staging, chưa phải production thật
+- không còn secret thật nằm trong artifact/repo path không được phép
+- có `.gitignore` hoặc cơ chế tương đương đủ rõ
+- rủi ro repo public/secret exposure đã được xử lý hoặc khai báo blocker trung thực
+- service vẫn hoạt động sau remediation
+- evidence đủ để Engineering quyết định có gửi COO được hay chưa
 
 Ràng buộc:
-- không mở scope ngoài Nhịp 3
-- không đổi logic release đầu
-- không gộp lại các lát bridge đã khóa
-- migration nếu có vẫn additive-only
-- không tự báo COO
-- nếu phát sinh blocker làm lane không thể đóng đúng plan, báo Engineering ngay
+- không mở feature mới
+- không đổi logic sản phẩm
+- không viết lại lane plan
+- không ghi secret thật vào report
+- nếu gặp blocker quyền GitHub/Render/owner thì báo đúng blocker, không suy đoán
 
 Deadline/Timebox:
-- bám khung Nhịp 3 đã khóa: 8–10 ngày lane thực tế
-- khi có build report sạch, Engineering sẽ review để quyết định gửi COO LANE COMPLETION REPORT hay yêu cầu fix cuối lane
+- vòng khẩn cấp ngắn, chỉ để làm sạch lane trước khi đóng phase
 
 ---
 
-## Phụ lục — Trạng thái Builder (đóng nhiệm vụ theo memo này)
+## Phụ lục — Trạng thái Builder (đóng vòng bảo mật)
 
-**Ngày cập nhật:** 2026-04-12  
-**Không gửi COO từ Builder** (đúng ràng buộc memo).
-
-- **Báo cáo chính thức:** `drafts tuvi/Builder_gửi_Engineering.md` — có mục **Đối chiếu `Engineering_gửi_Builder.md`** (output, điều kiện done, khóa triển khai, lỗi, scope).
-- **Evidence:** `QUAN LY TU VI/TAI_LIEU_DU_AN/backend/docs/pytest_last_run.txt`, `docs/git_sha_for_evidence.txt`, `docs/smoke_checklist_nhip3.md`, `docs/runbook_deploy.md`, `docs/builder_evidence_nhip3.md`.
-- **Pytest:** 66/66 passed (lần chạy evidence gần nhất ghi trong `pytest_last_run.txt`).
-- **Deploy Render:** ✅ **Production live** 2026-04-12 — `https://tuvi-backend-ocgd.onrender.com` (chi tiết + evidence `/health` + `/readiness` trong `Builder_gửi_Engineering.md` § *BÁO CÁO E*). Cần team cập nhật webhook Facebook + tick smoke prod.
-- **Phần bổ sung sau Nhịp 3 (CEO):** nằm trong `Builder_gửi_Engineering.md` § *BỔ SUNG SAU TRIỂN KHAI* — ngoài scope Engineering ban đầu, đã ghi rõ nguồn chỉ đạo.
+**Cập nhật:** 2026-04-12 — xem `Builder_gửi_Engineering.md` § **VÒNG KHẮC PHỤC BẢO MẬT (memo Engineering 2026-04-12)**.

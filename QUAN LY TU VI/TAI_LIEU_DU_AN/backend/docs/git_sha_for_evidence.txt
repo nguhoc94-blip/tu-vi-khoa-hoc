@@ -11,6 +11,8 @@ render_webhook_url: https://tuvi-backend-ocgd.onrender.com/webhook
 last_verified_with_pytest: 2026-04-12 (66 passed in 10.57s, see docs/pytest_last_run.txt)
 push_status: PUSHED to GitHub 2026-04-12
 deploy_status: LIVE on Render 2026-04-12 (health + readiness OK)
+github_repo_visibility: private (after security remediation 2026-04-12)
+ngrok_exe: removed from git tracking (remain local only)
 
 ## Nếu KHÔNG dùng Git
 # Thay bằng một trong các cách sau (ghi rõ trong báo cáo Engineering):

@@ -1,8 +1,57 @@
 ## BUILDER → ENGINEERING
 Từ: Builder  
 Gửi: Engineering  
-Ngày: 2026-04-11 (**cập nhật deploy production & báo cáo E: 2026-04-12**)  
-Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production)**  
+Ngày: 2026-04-11 (**cập nhật: deploy production + vòng bảo mật khẩn cấp — 2026-04-12**)  
+Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production + remediation bảo mật)**  
+
+---
+
+## VÒNG KHẮC PHỤC BẢO MẬT (memo `Engineering_gửi_Builder.md` — 2026-04-12)
+
+**Căn cứ:** Engineering mở vòng làm sạch secret / repo trước khi khóa `LANE COMPLETION REPORT` gửi COO.
+
+### 1. Secret hygiene — việc đã làm
+
+| Hạng mục | Kết quả |
+|----------|---------|
+| `.env` chứa secret thật | **Không** nằm trong Git — chỉ `.env.example` (placeholder `user:pass@localhost`) được track |
+| `.gitignore` gốc repo | Đã có `**/.env`, `.env.txt`, `bot tuvi.txt`, `*.zip`, venv, `__pycache__` — bổ sung **`ngrok.exe` / `ngrok`** |
+| Rà soát docs tracked | Không thấy API key / token thật trong `.md`/`.txt` commit (chỉ mẫu test redact trong `test_log_redact_nhip3.py` và log pytest — placeholder) |
+| `ngrok.exe` | **Đã `git rm --cached`** — binary không còn trong tree Git; file có thể giữ local, không bàn giao qua repo |
+
+### 2. Repo visibility
+
+| Trước | Sau remediation |
+|-------|-----------------|
+| Repo từng **public** (phục vụ tích hợp Render API) | **`private: true`** trên GitHub `nguhoc94-blip/tu-vi-khoa-hoc` (2026-04-12) |
+
+**Lưu ý:** Nếu auto-deploy Render ngừng nhận push sau khi private, owner cần xác nhận **Render ↔ GitHub** đã kết nối qua **GitHub App** (Dashboard Render → repo settings).
+
+### 3. Rotate secret (chỉ tên key — không ghi giá trị)
+
+| Key / nhóm | Builder đã rotate? | Ghi chú |
+|--------------|-------------------|---------|
+| `OPENAI_API_KEY` | **Không** | Rotate trên OpenAI dashboard nếu key từng lộ qua kênh không tin cậy |
+| `FB_PAGE_ACCESS_TOKEN` | **Không** | Rotate trong Meta Developer / Page settings nếu có nguy cơ |
+| `FB_APP_SECRET` | **Không** | Nếu dùng verify chữ ký webhook — rotate trong App settings nếu cần |
+| `DATABASE_URL` / mật khẩu Postgres | **Không** | Reset password instance `tuvi-db` trên Render nếu URL đầy đủ từng lộ |
+| Render **API key** (`rnd_…`) | **Không** | Thu hồi / tạo key mới trong Render Account → API Keys nếu từng lộ |
+| GitHub **PAT** (nếu dùng automation) | **Không** | Thu hồi token cũ, tạo PAT mới nếu từng lộ |
+
+**Basis:** Builder **không** có quyền thay thế secret trên tài khoản owner; không kết luận cảm tính “chưa lộ”. Theo policy memo: nếu secret **có khả năng** đã xuất hiện ngoài vault — **owner phải rotate** và cập nhật env trên Render.
+
+### 4. Verify sau remediation
+
+| Kiểm tra | Kết quả (2026-04-12) |
+|-----------|----------------------|
+| `GET https://tuvi-backend-ocgd.onrender.com/health` | `200` — `status=ok` |
+| `GET …/readiness` | `200` — `status=ready` |
+
+### 5. Kết luận cho Engineering
+
+- **Artifact Git (tracking + visibility):** **Đạt** — không còn `ngrok.exe` trong repo; `.env` không track; repo **private**.
+- **Rotation:** **Chưa thực hiện bởi Builder** — checklist tên key ở mục 3; **quyết định khóa lane / yêu cầu rotate** thuộc Engineering/owner.
+- **Không có blocker quyền** cho bước đặt repo private (đã thực hiện được).
 
 ---
 
@@ -18,7 +67,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | **Webhook** | `https://tuvi-backend-ocgd.onrender.com/webhook` |
 | **Render service** | `tuvi-backend` (slug `tuvi-backend-ocgd`) |
 | **Region** | Oregon (US West) — cùng region với Postgres Free `tuvi-db` |
-| **GitHub** | `https://github.com/nguhoc94-blip/tu-vi-khoa-hoc` (branch `main`) |
+| **GitHub** | `https://github.com/nguhoc94-blip/tu-vi-khoa-hoc` (branch `main`, **private** sau remediation) |
 
 ### 2. Bằng chứng kỹ thuật (sau deploy live)
 
@@ -49,7 +98,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 
 - **Facebook Developer:** cập nhật Callback URL webhook sang `https://tuvi-backend-ocgd.onrender.com/webhook` (Verify Token giữ đúng giá trị đã cấu hình trên Render).
 - **Smoke prod:** tick `docs/smoke_checklist_nhip3.md` trên môi trường production.
-- **Bảo mật:** repo GitHub đã từng chuyển **public** tạm thời để Render API tạo service từ URL; Engineering nên: cài **Render GitHub App** + đặt repo lại **private** + rotate secret nếu đã lộ qua kênh không an toàn.
+- **Bảo mật:** repo đã **private** lại (xem § *VÒNG KHẮC PHỤC BẢO MẬT*). Xác nhận Render vẫn pull được từ GitHub App; owner xử lý **rotate secret** theo checklist trong báo cáo bảo mật nếu Engineering yêu cầu.
 
 ### 6. Đối chiếu memo Engineering (cập nhật sau deploy)
 
@@ -132,7 +181,7 @@ Bảng dưới đây map trực tiếp **Output mong muốn**, **Điều kiện 
 
 **Git SHA baseline lớn:** `b481e3a` (feat: add full backend Phase 2 + Render deploy config — 2026-04-12)  
 **Git SHA production live (sau fix):** `9f9d874`  
-**GitHub remote:** [https://github.com/nguhoc94-blip/tu-vi-khoa-hoc](https://github.com/nguhoc94-blip/tu-vi-khoa-hoc) — hiện **public** (tạm cho tích hợp Render API; nên chuyển lại private + GitHub App)  
+**GitHub remote:** [https://github.com/nguhoc94-blip/tu-vi-khoa-hoc](https://github.com/nguhoc94-blip/tu-vi-khoa-hoc) — **private** (sau vòng remediation 2026-04-12)  
 **Trạng thái:** ✅ **PUSHED** + ✅ **Render LIVE** — `https://tuvi-backend-ocgd.onrender.com` (chi tiết § *BÁO CÁO E*).
 
 ---
