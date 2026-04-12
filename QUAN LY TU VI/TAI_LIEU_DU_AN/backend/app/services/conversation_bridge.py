@@ -357,7 +357,12 @@ def _mode_chat(
         "{{CHART_CONTEXT}}",
         "Người dùng chưa cung cấp thông tin ngày sinh. "
         "Hãy trả lời các câu hỏi tổng quát về tử vi một cách tự nhiên. "
-        "Nếu người dùng muốn xem lá số cá nhân, hỏi nhẹ nhàng họ tên và ngày sinh.",
+        "Nếu người dùng muốn xem lá số cá nhân, hỏi nhẹ nhàng họ tên và ngày sinh.\n\n"
+        "RÀNG BUỘC KỸ THUẬT — TUYỆT ĐỐI KHÔNG VI PHẠM:\n"
+        "- Hệ thống CHỈ nhận tin nhắn văn bản — KHÔNG thể nhận ảnh, file, hay ảnh chụp lá số.\n"
+        "- Lá số Tử Vi được hệ thống lập TỰ ĐỘNG từ ngày giờ sinh do người dùng nhập bằng chữ.\n"
+        "- KHÔNG bao giờ gợi ý hoặc đề cập việc gửi ảnh lá số, chụp ảnh, hoặc tải file.\n"
+        "- Con đường DUY NHẤT để xem lá số là nhập: họ tên, ngày/tháng/năm sinh, giờ sinh, giới tính.",
     )
     return _call_openai_conversation(
         system_prompt=system_prompt,
