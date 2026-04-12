@@ -1,0 +1,32 @@
+# Secrets — KHÔNG bao giờ commit
+**/.env
+**/.env.local
+**/.env.production
+**/.env.txt
+**/bot tuvi.txt
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.venv/
+**/venv/
+**/.pytest_cache/
+
+# Archives / build artifacts
+**/*.zip
+**/*.tar.gz
+**/*.egg-info/
+**/dist/
+**/build/
+
+# IDE
+.cursor/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,394 @@
+BRIEF KHÁCH HÀNG CHI TIẾT
+Bot Tử Vi Messenger - Bản hoàn chỉnh dùng để giao CEO/COO bóc brief, lập master plan và triển khai các lane
+
+TÓM TẮT CHỐT
+- Mục tiêu cốt lõi: Biến bot thành máy lấy lead + nuôi lead + bán hàng trên Messenger, không chỉ là máy sinh text.
+- Định vị: Trợ lý tử vi cá nhân hóa cho người Việt, dễ dùng, đủ sâu, đủ tin cậy và có thể kiếm tiền.
+- Trọng tâm giai đoạn đầu: Cải thiện trải nghiệm Messenger, free result, upsell, analytics funnel, backend production-ready, admin dễ vận hành.
+- Nguyên tắc kỹ thuật: Engine lá số deterministic là nguồn sự thật; AI chủ yếu dùng để diễn giải, cá nhân hóa, gợi ý và hỗ trợ bán hàng.
+
+1. TÔI MUỐN BOT NÀY TRỞ THÀNH GÌ
+
+Tôi không muốn một bot chỉ nhập ngày sinh rồi trả ra một bài luận giải xong là hết. Tôi muốn một hệ thống có thể:
+
+- thu hút người dùng từ quảng cáo hoặc bài đăng vào Messenger
+- hỏi thông tin sinh một cách dễ chịu, nhanh, ít bỏ cuộc
+- tạo ra cảm giác bot hiểu tôi, nói đúng trọng tâm của tôi
+- cho tôi một kết quả miễn phí đủ hay để tin tưởng
+- dẫn tôi sang gói sâu hơn, gói theo chủ đề, gói theo thời gian hoặc tư vấn thật để kiếm tiền
+- lưu lại dữ liệu và lịch sử để tôi có thể nuôi lại khách hàng cũ
+- cho tôi thấy rõ bot đang kiếm lead, kiếm tiền hay đang rơi ở bước nào
+
+Tóm lại, tôi muốn bot này là máy lấy khách + máy nuôi khách + máy bán hàng, chứ không phải chỉ là máy sinh text.
+
+2. BỐI CẢNH HIỆN TẠI MÀ TÔI NHÌN THẤY SAU BÀN GIAO
+
+Từ sản phẩm hiện có, tôi hiểu rằng bot đã có nền backend thật:
+
+- có webhook Messenger
+- có flow hỏi tuần tự dữ liệu sinh
+- có engine tử vi
+- có generate reading
+- có donation CTA tùy chọn
+- có admin local cơ bản
+
+Tuy nhiên, ở góc độ khách hàng, tôi thấy sản phẩm hiện tại vẫn là MVP kỹ thuật, chưa phải MVP kinh doanh.
+
+Những điểm tôi còn thiếu ngay khi nhìn vào bản bàn giao gồm:
+
+- trải nghiệm mở đầu chưa đủ cuốn
+- bot chưa cho tôi cảm giác có nhiều lựa chọn theo nhu cầu cá nhân
+- kết quả chưa được đóng gói như một sản phẩm bán hàng
+- phần upsell còn yếu
+- phần theo dõi lead, conversion, marketing chưa đủ rõ
+- chưa thấy cơ chế quay lại sử dụng hằng ngày hoặc hằng tuần
+- chưa thấy cách phân tầng free / low-ticket / premium thật rõ
+
+3. MỤC TIÊU KINH DOANH TÔI MUỐN ĐẠT
+
+Tôi muốn bot phục vụ đồng thời 4 mục tiêu:
+
+3.1. Mục tiêu lấy lead
+Người dùng thấy quảng cáo hoặc bài viết, bấm vào Messenger và bắt đầu nói chuyện ngay.
+
+3.2. Mục tiêu tạo niềm tin
+Người dùng nhận được một phần luận giải đủ đúng, đủ riêng tư, đủ trúng để cảm thấy đáng tin.
+
+3.3. Mục tiêu kiếm tiền
+Bot phải dẫn được sang ít nhất một trong các hình thức doanh thu sau:
+- bán bản luận giải sâu
+- bán gói theo chủ đề
+- bán dự báo theo thời gian
+- bán tư vấn thật với người thật
+- bán gói thành viên hoặc theo dõi định kỳ
+- donation chỉ là phụ, không phải nguồn chính
+
+3.4. Mục tiêu nuôi lại khách
+Tôi muốn người đã từng dùng bot còn quay lại để xem vận hạn mới, hỏi thêm theo chủ đề, xem người thân hoặc đối tác, xem theo tháng/quý/năm và nhận nội dung tái kích hoạt.
+
+4. ĐỊNH VỊ SẢN PHẨM TÔI MUỐN
+
+Tôi muốn sản phẩm được định vị là: "Trợ lý tử vi cá nhân hóa trên Messenger cho người Việt - vừa dễ dùng, vừa đủ sâu, vừa có thể giúp tôi hiểu bản thân, tình cảm, công việc và quyết định sắp tới."
+
+Tôi không muốn sản phẩm bị cảm giác như:
+
+- một bot spam
+- một tool bói vui sơ sài
+- một bài văn AI dài nhưng rỗng
+- một phần mềm quá kỹ thuật, khó hiểu
+
+Bot phải tạo cảm giác có chiều sâu cá nhân hóa, chứ không chỉ là trả kết quả tổng quát.
+
+5. YÊU CẦU CHI TIẾT VỀ TRẢI NGHIỆM HIỂN THỊ TRONG MESSENGER
+
+5.1. Mở đầu phải ăn khớp với quảng cáo hoặc bài đăng
+Lời chào đầu tiên trong Messenger phải là phần nối tiếp tự nhiên của quảng cáo hoặc nội dung kéo khách, không được như một cuộc chat hoàn toàn mới.
+Nếu quảng cáo nói về tình duyên thì lời chào phải tiếp nối đúng tình duyên; nếu quảng cáo nói về công việc thì bot phải mở vào flow công việc.
+
+5.2. Không bắt người dùng gõ tự do quá nhiều ngay từ đầu
+Bot nên ưu tiên nút chọn nhanh, quick replies, menu chủ đề và ví dụ câu trả lời mẫu.
+Sau câu chào, bot nên cho bấm các lựa chọn như: Xem tổng quan, Xem tình duyên, Xem công việc, Xem tài lộc, Xem năm nay, Hỏi cho người thân.
+
+5.3. Phải cho người dùng biết đang ở bước nào
+Khi nhập dữ liệu sinh, bot phải cho người dùng thấy tiến độ rõ như bước 1/6, bước 2/6, còn thiếu gì và có thể sửa lại bước trước không.
+
+5.4. Luồng nhập dữ liệu phải dễ hơn
+Bot phải hiểu được nhiều kiểu nhập ngày sinh và giờ sinh phổ biến, dùng nút chọn cho giới tính và âm lịch/dương lịch, và chỉ hỏi tháng nhuận khi thật sự cần.
+
+5.5. Kết quả phải chia thành các khối dễ đọc
+Kết quả không được là một cục văn bản dài khó nuốt. Nội dung nên chia rõ thành: tổng quan ngắn, 3 điểm nổi bật, tình duyên, công việc, tiền bạc, điều nên cẩn trọng và gợi ý hành động tiếp theo.
+
+5.6. Sau khi đọc xong phải có lựa chọn ngay
+Sau kết quả free, bot phải cho người dùng bấm ngay các hướng tiếp theo như: Xem sâu hơn, Xem tình duyên chi tiết, Xem công việc 90 ngày tới, Xem với người yêu hoặc đối tác, Gặp chuyên gia, Xem lại từ đầu.
+
+6. YÊU CẦU VỀ CHẤT LƯỢNG NỘI DUNG LUẬN GIẢI
+
+6.1. Nội dung phải mang tính riêng cho tôi
+Tôi không chấp nhận kiểu văn bản AI chung chung. Nội dung phải có cảm giác đúng người, đúng bối cảnh, nhắc tới các điểm nổi bật từ lá số theo cách dễ hiểu và phân tích theo chủ đề thực tế.
+
+6.2. Luận giải phải có 3 tầng
+Free: ngắn, tạo wow, cho thấy bot có hiểu tôi.
+Standard / low-ticket: sâu theo một chủ đề, rõ hơn, dài hơn, có giá trị đủ để trả tiền nhỏ.
+Premium: cho phép hỏi sâu theo hoàn cảnh, có thể là text AI nâng cao hoặc chuyển qua người thật.
+
+6.3. Nội dung phải bớt định mệnh hóa
+Bot không được khẳng định tuyệt đối các nội dung gây phản cảm hoặc rủi ro như chắc chắn ly hôn, chắc chắn phá sản, chắc chắn có bệnh, chắc chắn tai nạn.
+Bot phải dùng cách diễn đạt theo hướng xu hướng, điểm mạnh/yếu và gợi ý cần lưu ý gì.
+
+6.4. Tôi muốn có các gói chủ đề rõ ràng
+Bot không chỉ có một bài trọn đời. Tôi muốn có các gói riêng như: tình duyên và hôn nhân, công việc và nghề nghiệp, tài lộc và tiền bạc, vận hạn năm nay, 30 ngày tới, 90 ngày tới, compatibility với người yêu/bạn đời/đối tác, xem cho con cái hoặc người thân.
+
+7. YÊU CẦU VỀ KHẢ NĂNG KIẾM TIỀN
+
+7.1. Donation không được là mô hình chính
+Donation có thể giữ lại, nhưng dự án không được phụ thuộc chủ yếu vào donation.
+
+7.2. Tôi muốn ít nhất 4 dòng doanh thu
+Mở khóa bài đầy đủ hoặc bài sâu theo chủ đề.
+Gói dự báo theo thời gian: 30 ngày, 90 ngày, 1 năm.
+Gói compatibility: người yêu, vợ/chồng, đối tác, bạn bè.
+Gói gặp người thật hoặc đặt lịch tư vấn.
+
+7.3. Phải có offer cho người mới
+Cần có offer đầu vào dễ mua như: bản đọc đầu tiên giá thấp, ưu đãi lần đầu, mở khóa một chủ đề với giá nhỏ, combo hai chủ đề giá tốt hơn.
+
+7.4. Phải có đường upsell rõ ngay trong chat
+Sau free result, bot phải có câu mời mua tự nhiên và có lựa chọn rõ ràng cho bước tiếp theo.
+
+7.5. Phải có cơ chế mua lại
+Người đã mua một lần phải được dẫn tiếp sang gói tiếp theo, gói cao hơn, gói theo tháng, gói theo năm hoặc gói cho người thân.
+
+8. YÊU CẦU VỀ MARKETING VÀ FUNNEL
+
+8.1. Bot phải hỗ trợ click-to-Messenger ads thật tốt
+Mỗi chiến dịch quảng cáo cần có thể đi vào một flow riêng như ad tình duyên -> flow tình duyên, ad công việc -> flow công việc, ad vận hạn năm nay -> flow năm nay.
+
+8.2. Phải gắn được nguồn lead
+Tôi muốn biết người dùng đến từ chiến dịch nào, nhóm quảng cáo nào, bài viết nào, keyword nào hoặc entry point nào.
+
+8.3. Phải có phân loại lead
+Hệ thống phải tự phân nhóm người dùng theo chủ đề họ quan tâm, trạng thái nhập dữ liệu, đã xem free chưa, đã mua chưa, đã quay lại chưa và tiềm năng mua gói nào.
+
+8.4. Phải có follow-up và nurturing
+Tôi muốn có khả năng nuôi lại khách bằng nội dung nhắc quay lại, gợi ý chủ đề tiếp theo, thông báo có bài mới hoặc ưu đãi mới và xuất dữ liệu để remarketing.
+
+8.5. Phải có social proof
+Tôi muốn có chỗ để dùng feedback thật, ví dụ bài đọc hay, case đúng quá, ảnh chụp hội thoại mẫu và rating hoặc review nếu có.
+
+9. YÊU CẦU VỀ BACKEND VÀ DỮ LIỆU
+
+9.1. Phải lưu hồ sơ người dùng
+Mỗi người dùng phải có hồ sơ riêng gồm thông tin sinh, loại lịch, lịch sử các lần xem, các chủ đề đã hỏi, các gói đã mua và trạng thái lead hiện tại.
+
+9.2. Phải hỗ trợ nhiều lá số trên một tài khoản
+Người dùng phải có thể xem cho mình và lưu thêm người yêu, vợ/chồng, con hoặc đối tác.
+
+9.3. Engine lá số phải là nguồn sự thật
+Phần lập lá số và tính toán cốt lõi phải là logic ổn định, nhất quán, không để AI bịa. AI chỉ dùng chủ yếu để diễn giải, viết lại, gợi ý và hỗ trợ bán hàng.
+
+9.4. Phải có event log và analytics
+Backend phải ghi được tối thiểu: bắt đầu hội thoại, hoàn thành nhập dữ liệu, generate free thành công/thất bại, bấm xem sâu hơn, bấm link thanh toán/đăng ký/donation, mua thành công hoặc bỏ dở, quay lại sau 1 ngày, 7 ngày và 30 ngày.
+
+9.5. Phải có readiness cho thanh toán
+Dù chưa cần tích hợp payment ngay, backend phải sẵn chỗ cho tạo đơn hàng, ghi nhận trạng thái thanh toán, mở khóa nội dung, log giao dịch và hỗ trợ khuyến mãi hoặc mã giảm giá.
+
+9.6. Phải có readiness cho handoff sang người thật
+Cần có mode gửi lead chất lượng sang nhân sự tư vấn, lưu transcript, đánh dấu lead nóng và đặt lịch hoặc để lại thông tin liên hệ.
+
+9.7. Phải đủ mạnh để chạy thực chiến
+Hệ thống phải được nâng từ local MVP lên mức chạy thực chiến bước đầu: webhook chắc hơn, chống duplicate, log lỗi rõ, theo dõi chi phí model, retry hợp lý, không mất session vô cớ và dễ debug khi có khách thật.
+
+10. YÊU CẦU VỀ ADMIN VÀ QUẢN TRỊ NỘI DUNG
+
+10.1. Tôi muốn panel dễ dùng cho người không kỹ thuật
+Tôi không muốn mọi thay đổi nhỏ đều cần sửa code. Trong admin phải có thể bật/tắt offer, sửa câu chào, sửa CTA, sửa link thanh toán hoặc link hỗ trợ, sửa nội dung footer, xem bot đang khỏe hay lỗi và xem số liệu chính.
+
+10.2. Tôi muốn xem funnel trong admin
+Tối thiểu phải thấy số người bắt đầu, số người nhập đủ dữ liệu, số bài free tạo thành công, số người bấm xem sâu hơn, số người mua và tỷ lệ conversion theo từng nguồn.
+
+10.3. Tôi muốn xem hội thoại và lỗi
+Tôi cần log hội thoại tóm tắt, trạng thái từng lead, các request lỗi, các job generate lỗi và cảnh báo nếu bot trả về fallback quá nhiều.
+
+10.4. Tôi muốn A/B test được
+Tối thiểu nên có chỗ để thay thử lời chào A/B, CTA A/B, cấu trúc bài free A/B và offer đầu vào A/B.
+
+11. YÊU CẦU VỀ ĐỘ TIN CẬY, PHÁP LÝ VÀ NIỀM TIN NGƯỜI DÙNG
+
+11.1. Phải có tuyên bố rõ về bản chất dịch vụ
+Sản phẩm phải được trình bày là công cụ định hướng, tự phản chiếu, giải trí/tham khảo; không được tạo cảm giác thay thế bác sĩ, luật sư hay chuyên gia tâm lý.
+
+11.2. Phải bảo vệ dữ liệu cá nhân cơ bản
+Không lộ log thô không cần thiết.
+Có cơ chế xóa hồ sơ nếu cần.
+Có cách trình bày minh bạch về dữ liệu.
+
+11.3. Bot phải biết tự hạ nhiệt ở tình huống nhạy cảm
+Nếu người dùng hỏi về bệnh nặng, pháp lý, tự hại hoặc khủng hoảng tinh thần thì bot phải chuyển sang cách nói an toàn, không phán bừa.
+
+12. YÊU CẦU VỀ ROADMAP SẢN PHẨM TỐI ƯU NHẤT
+
+Giai đoạn 1 - Làm cho bot bán được
+Ưu tiên flow Messenger đẹp hơn, quick replies, free result tốt hơn, CTA tốt hơn, log funnel và readiness cho upsell.
+
+Giai đoạn 2 - Làm cho bot kiếm tiền tốt hơn
+Thêm gói chủ đề, compatibility, payment, ưu đãi lần đầu, A/B test và nuôi lại lead.
+
+Giai đoạn 3 - Làm cho bot giữ chân người dùng
+Thêm nội dung theo tuần/tháng, gợi ý quay lại, xem cho người thân, hồ sơ nhiều người và thông báo/reactivation.
+
+Giai đoạn 4 - Làm cho bot có hàng cao cấp
+Thêm tư vấn người thật, đặt lịch, gói thành viên và nội dung chuyên sâu theo chu kỳ lớn.
+
+13. CÁC THAY ĐỔI CỤ THỂ TÔI YÊU CẦU SO VỚI BẢN HIỆN TẠI
+
+Đổi từ flow hỏi tuần tự thuần text sang flow có nút chọn và định hướng theo chủ đề.
+
+Đổi từ trả full reading ngay + donation CTA sang cấu trúc sản phẩm rõ hơn: free -> chọn hướng sâu -> upsell.
+
+Giữ engine lá số deterministic, nhưng nâng lớp diễn giải để bớt chung chung và bớt khó đọc.
+
+Thêm lưu hồ sơ, nhiều lá số, lịch sử câu hỏi, trạng thái lead.
+
+Thêm analytics funnel, attribution và conversion logging.
+
+Chuẩn bị sẵn cho payment và offer đầu vào.
+
+Thêm phân tầng nội dung: tổng quan, chủ đề, theo thời gian, compatibility.
+
+Thêm admin dễ dùng cho người vận hành không kỹ thuật.
+
+Thêm cơ chế quay lại và nuôi lại khách hàng.
+
+Thêm lớp niềm tin: disclaimer, privacy, social proof, human handoff.
+
+14. TIÊU CHÍ TÔI SẼ DÙNG ĐỂ NGHIỆM THU
+
+Tôi sẽ coi sản phẩm đạt khi:
+
+- người dùng mới vào Messenger và hiểu phải làm gì trong vài giây đầu
+- tỷ lệ bỏ cuộc khi nhập dữ liệu giảm rõ
+- bản free tạo được cảm giác đúng và đáng xem tiếp
+- có ít nhất một đường upsell rõ và đo được
+- backend log được funnel cơ bản từ vào bot đến bấm mua
+- tôi nhìn vào admin biết bot đang tạo lead và rơi ở bước nào
+- sản phẩm có thể dùng để chạy quảng cáo click-to-Messenger có chủ đích
+- người dùng có lý do quay lại, không chỉ xem một lần rồi thôi
+
+15. YÊU CẦU TRIỂN KHAI VÀ VẬN HÀNH
+
+Tôi không muốn sản phẩm chỉ chạy local trên máy cá nhân. Tôi muốn hệ thống có thể chạy online ổn định và có thể vận hành bởi người không rành kỹ thuật.
+
+Tôi muốn:
+
+- có môi trường online thật
+- có domain hoặc subdomain rõ ràng
+- webhook hoạt động ổn định mà không cần mở terminal thủ công
+- có giao diện hoặc quy trình đơn giản để nhập biến môi trường, kết nối database, kiểm tra webhook và bấm deploy/redeploy/restart
+- không bắt buộc tôi phải SSH, mở terminal hay chạy lệnh tay mỗi lần sửa nhỏ
+- mọi tác vụ vận hành thường ngày nên làm được bằng giao diện admin hoặc dashboard hosting
+
+Sau khi setup ban đầu xong, người vận hành không kỹ thuật phải có thể:
+
+- xem bot đang online hay offline
+- xem lỗi cơ bản
+- sửa một số cấu hình thường gặp
+- bấm deploy lại
+- bấm restart
+- xem webhook có đang nhận được event hay không
+
+16. YÊU CẦU PHI CHỨC NĂNG
+
+Tôi muốn hệ thống đạt các tiêu chuẩn tối thiểu sau:
+
+- thời gian phản hồi bước chat thông thường đủ nhanh
+- generate dài có thể chậm hơn nhưng phải có tín hiệu chờ hợp lý
+- hệ thống không mất session khi người dùng quay lại
+- duplicate webhook không tạo ra kết quả trùng
+- lỗi phải được log rõ và dễ dò
+- bot không bị treo khi có nhiều người dùng cùng lúc ở mức cơ bản
+- có backup dữ liệu định kỳ
+- có khả năng khôi phục nếu deploy lỗi
+
+Tiêu chí vận hành tối thiểu:
+
+- thao tác chat thường phải phản hồi trong vài giây
+- generate bài dài phải có thông báo đang xử lý
+- duplicate event không gây gửi lặp
+- restart service không làm hỏng dữ liệu cũ
+- khi lỗi, admin nhìn thấy được nguyên nhân cơ bản
+
+17. YÊU CẦU BẢO MẬT VÀ QUYỀN TRUY CẬP
+
+Tôi muốn admin có đăng nhập và có phân quyền tối thiểu.
+
+Tôi muốn:
+
+- không ai ngoài người được phép xem dữ liệu khách hàng
+- transcript và dữ liệu sinh không được lộ công khai
+- có phân quyền tối thiểu cho các nhóm việc: xem số liệu, sửa nội dung, vận hành/deploy, xem lead
+- có log hành động admin cho các thay đổi quan trọng
+
+18. YÊU CẦU QUẢN TRỊ NỘI DUNG
+
+Tôi muốn có thể quản trị bằng giao diện các phần sau:
+
+- lời chào
+- quick replies
+- CTA sau free result
+- offer hiện hành
+- disclaimer
+- footer
+- link thanh toán
+- social proof snippets
+- flow reactivation
+
+Cần xác định rõ phần nào sửa được từ admin, phần nào phải qua deploy, template nào có version và có cần preview trước khi publish hay không.
+
+19. YÊU CẦU DỮ LIỆU VÀ KẾT NỐI NGOÀI
+
+Tôi muốn:
+
+- xuất lead ra file
+- xuất đơn hàng hoặc conversion ra file
+- lọc theo chiến dịch, nguồn và trạng thái
+- có đường để kết nối sau này với CRM, sheet hoặc công cụ quảng cáo
+- có khả năng import social proof, content hoặc offer khi cần
+
+20. YÊU CẦU RELEASE VÀ XỬ LÝ SỰ CỐ
+
+Tôi muốn:
+
+- có quy trình update bot mà không làm mất dữ liệu
+- có khả năng rollback nếu bản mới lỗi
+- có health check
+- có cảnh báo khi webhook chết
+- có cách biết OpenAI, Meta hoặc database đang lỗi ở đâu
+- có nút hoặc quy trình rõ để restart dịch vụ
+
+21. YÊU CẦU VẬN HÀNH KHÔNG KỸ THUẬT
+
+Tôi muốn người vận hành thông thường không cần mở terminal hoặc chạy lệnh tay để dùng bot.
+
+Tôi muốn hệ thống có:
+
+- giao diện setup ban đầu
+- form nhập các biến cấu hình cần thiết
+- nút kiểm tra kết nối
+- nút deploy
+- nút redeploy
+- nút restart
+- nút test webhook
+- nút xem health hệ thống
+- nơi xem log lỗi cơ bản
+
+Tôi chấp nhận rằng việc setup hạ tầng lần đầu có thể do kỹ thuật thực hiện, nhưng sau khi bàn giao, vận hành thường ngày phải càng ít phụ thuộc terminal càng tốt.
+
+22. PHÂN NHÓM ƯU TIÊN TRIỂN KHAI
+
+Bắt buộc cho bản đầu
+- flow Messenger rõ ràng hơn
+- free result tốt hơn
+- CTA/upsell cơ bản
+- analytics funnel tối thiểu
+- backend production-ready bước đầu
+- admin vận hành cơ bản
+- deploy online không phụ thuộc local
+
+Nên có sớm sau bản đầu
+- gói chủ đề
+- compatibility
+- payment
+- A/B test cơ bản
+- multi-profile
+- export lead và conversion
+
+Để giai đoạn sau
+- membership
+- human handoff nâng cao
+- CRM sync sâu
+- nội dung chu kỳ lớn
+- automation nuôi lead nâng cao
+
+KẾT LUẬN CHỐT CỦA KHÁCH HÀNG
+
+Tôi cần một hệ thống Messenger có engine lá số đáng tin, nội dung cá nhân hóa đủ hay, funnel bán hàng rõ, analytics rõ, có thể vận hành online mà ít phụ thuộc kỹ thuật, và có khả năng biến traffic thành doanh thu bền vững.

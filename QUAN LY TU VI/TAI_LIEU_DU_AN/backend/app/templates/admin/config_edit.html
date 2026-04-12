@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Edit {{ key }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    textarea { width: 100%; min-height: 200px; font-family: monospace; font-size: 13px; }
+    nav a { margin-right: 1rem; }
+    .ro { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <nav><a href="/admin/config">← Config</a></nav>
+  <h1><code>{{ key }}</code></h1>
+  <p>Published (runtime Messenger đọc cột này sau khi publish):</p>
+  <textarea class="ro" readonly>{{ published_json }}</textarea>
+  {% if can_write %}
+  <form method="post" action="/admin/config/{{ key }}/draft">
+    <p>Nháp (draft_value):</p>
+    <textarea name="draft_json">{{ draft_json }}</textarea>
+    <p><button type="submit">Lưu nháp</button></p>
+  </form>
+  <form method="post" action="/admin/config/{{ key }}/publish" onsubmit="return confirm('Publish draft → published?');">
+    <button type="submit">Publish (ghi đè published từ draft)</button>
+  </form>
+  {% else %}
+  <p><em>Viewer — không ghi được.</em></p>
+  {% endif %}
+</body>
+</html>

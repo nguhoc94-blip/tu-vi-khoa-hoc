@@ -1,0 +1,12 @@
+# Định danh bản code (evidence lane — tùy chọn một hoặc nhiều dòng)
+
+## Nếu có Git (local, bất kỳ remote nào)
+# Từ thư mục gốc repo: git rev-parse HEAD
+git_commit_sha: 98a2a38b48d53e609b92dfc67dfe810bba17819b
+last_verified_with_pytest: 2026-04-12 (66 passed in 10.57s, see docs/pytest_last_run.txt)
+
+## Nếu KHÔNG dùng Git
+# Thay bằng một trong các cách sau (ghi rõ trong báo cáo Engineering):
+# - Deploy ID / commit hiển thị trên Render (screenshot dashboard)
+# - Cặp env GIT_SHA + BUILD_TIME set tay hoặc pipeline (hiện trên GET /health)
+# - Mã phiên bản nội bộ (vd. release-2026-04-11-1)

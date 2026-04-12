@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Transcript</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .turn { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
+    .role { font-weight: bold; color: #444; }
+    nav a { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/transcript">Transcript</a>
+    <form method="post" action="/admin/logout" style="display:inline"><button type="submit">Logout</button></form>
+  </nav>
+  <h1>Transcript (messenger_sessions.history)</h1>
+  <form method="get" action="/admin/transcript">
+    <label>sender_id <input type="text" name="sender_id" value="{{ sender_id }}" size="40"/></label>
+    <button type="submit">Xem</button>
+  </form>
+  {% if history %}
+  <h2>Lịch sử</h2>
+  {% for t in history %}
+  <div class="turn">
+    <span class="role">{{ t.role }}</span>
+    <pre style="white-space:pre-wrap;margin:0.25rem 0 0 0;">{{ t.content }}</pre>
+  </div>
+  {% endfor %}
+  {% elif sender_id %}
+  <p>Không có session hoặc history trống.</p>
+  {% endif %}
+</body>
+</html>

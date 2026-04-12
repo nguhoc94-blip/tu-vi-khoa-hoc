@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Admin — Privacy / Maintenance</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    nav a { margin-right: 1rem; }
+    .err { color: #b00020; }
+    .ok { color: #0a0; }
+    section { margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/config">Config</a>
+    <a href="/admin/privacy">Privacy</a>
+    <form method="post" action="/admin/logout" style="display:inline"><button type="submit">Logout</button></form>
+  </nav>
+  <h1>Privacy &amp; maintenance</h1>
+  <p>User: <strong>{{ user.email }}</strong> ({{ user.role }})</p>
+  {% if error %}<p class="err">{{ error }}</p>{% endif %}
+  {% if message %}<p class="ok">{{ message }}</p>{% endif %}
+
+  <section>
+    <h2>Ẩn danh baseline (sender_id)</h2>
+    <p>Xóa/scrub nội dung nhạy cảm theo sender (session, readings text, funnel, profile). Có audit log.</p>
+    <form method="post" action="/admin/privacy/anonymize">
+      <label>sender_id: <input name="sender_id" type="text" required style="width: 280px"/></label>
+      <button type="submit">Anonymize</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Cleanup webhook_dedupe (24h)</h2>
+    <p>Xóa bản ghi dedupe cũ hơn 24 giờ (batch). Dùng cron hoặc bấm thủ công trên staging.</p>
+    <form method="post" action="/admin/maintenance/webhook-dedupe-cleanup">
+      <button type="submit">Chạy cleanup</button>
+    </form>
+  </section>
+</body>
+</html>

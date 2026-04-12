@@ -1,0 +1,45 @@
+# Render Blueprint — tu vi backend (Phase 2, Nhịp 3)
+# Platform liveness: /health (không kiểm tra DB — khóa Engineering)
+# /readiness chỉ dùng trong runbook/smoke, không làm default platform liveness.
+# rootDir trỏ đến thư mục chứa requirements.txt và app/
+
+services:
+  - type: web
+    name: tuvi-backend
+    runtime: python
+    plan: free
+    rootDir: "QUAN LY TU VI/TAI_LIEU_DU_AN/backend"
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.12"
+      - key: LOG_LEVEL
+        value: INFO
+      # Các secret bên dưới: điền tay trong Render Dashboard → Environment
+      # KHÔNG commit giá trị thật vào đây
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false
+      - key: FB_PAGE_ACCESS_TOKEN
+        sync: false
+      - key: FB_VERIFY_TOKEN
+        sync: false
+      - key: FB_APP_SECRET
+        sync: false
+      - key: ADMIN_BOOTSTRAP_EMAIL
+        sync: false
+      - key: ADMIN_BOOTSTRAP_PASSWORD
+        sync: false
+      - key: MESSENGER_PART_2_BANK_BLOCK
+        sync: false
+      - key: MESSENGER_PART_3_CEO_NOTE
+        sync: false
+      - key: ADMIN_COOKIE_SECURE
+        value: "1"
+      - key: DEBOUNCE_SECONDS
+        value: "1.5"

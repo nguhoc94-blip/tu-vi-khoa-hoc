@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Admin — Dashboard</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    nav a { margin-right: 1rem; }
+    ul.stats { list-style: none; padding: 0; }
+    ul.stats li { margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/config">Config</a>
+    <a href="/admin/campaigns">Campaigns</a>
+    <a href="/admin/transcript">Transcript</a>
+    <a href="/admin/privacy">Privacy</a>
+    <a href="/admin/export/sessions.json">Export sessions JSON</a>
+    <form method="post" action="/admin/logout" style="display:inline"><button type="submit">Logout</button></form>
+  </nav>
+  <h1>Dashboard</h1>
+  <p>Xin chào <strong>{{ user.email }}</strong> ({{ user.role }})</p>
+  <ul class="stats">
+    <li>messenger_sessions: <strong>{{ counts.sessions }}</strong></li>
+    <li>readings: <strong>{{ counts.readings }}</strong></li>
+    <li>app_config keys: <strong>{{ counts.config_keys }}</strong></li>
+    <li>campaigns: <strong>{{ counts.campaigns }}</strong></li>
+  </ul>
+</body>
+</html>

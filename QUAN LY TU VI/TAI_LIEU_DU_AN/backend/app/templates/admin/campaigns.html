@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Campaigns</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; }
+    nav a { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/campaigns">Campaigns</a>
+    <form method="post" action="/admin/logout" style="display:inline"><button type="submit">Logout</button></form>
+  </nav>
+  <h1>Campaigns</h1>
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Ref</th><th>Updated</th><th>Draft</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>{{ r.name }}</td>
+        <td>{{ r.external_ref or "—" }}</td>
+        <td>{{ r.updated_at }}</td>
+        <td>{% if r.has_draft %}có{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p><small>Chỉnh sửa campaign draft/publish có thể bổ sung route sau; baseline Nhịp 2: list + có cột draft.</small></p>
+</body>
+</html>
