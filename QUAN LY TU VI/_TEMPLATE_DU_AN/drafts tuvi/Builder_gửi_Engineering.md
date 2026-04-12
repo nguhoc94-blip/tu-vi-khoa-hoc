@@ -47,7 +47,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | `GET https://tuvi-backend-ocgd.onrender.com/health` | `200` — `status=ok` |
 | `GET …/readiness` | `200` — `status=ready` |
 
-**Git — chuỗi commit remediation trên `main`:** bắt đầu `004979c` (ngrok + private + docs); **HEAD evidence khuyến nghị:** `4b088ec`.
+**Git — remediation trên `main`:** commit chứa thay đổi kỹ thuật chính **`004979c`** (ngrok + `.gitignore` + gỡ track binary + báo cáo + runbook). Các commit tiếp theo chỉ đồng bộ wording evidence. **Tip `main` hiện tại:** `git rev-parse origin/main` sau `git pull` (không nhúng SHA tĩnh trong báo cáo để tránh lệch 1 commit).
 
 ### 5. Kết luận cho Engineering
 
