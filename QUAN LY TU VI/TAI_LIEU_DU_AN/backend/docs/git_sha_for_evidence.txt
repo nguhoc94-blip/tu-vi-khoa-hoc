@@ -3,6 +3,8 @@
 ## Nếu có Git (local, bất kỳ remote nào)
 # Từ thư mục gốc repo: git rev-parse HEAD
 git_commit_sha_production_live: 9f9d874 (fix migration bootstrap + python-multipart — 2026-04-12)
+git_head_after_birth_extractor_gpt54_fix: b067535 (birth_extractor: gpt-5.4 + max_completion_tokens, no temperature — 2026-04-13)
+git_commit_chat_prompt_no_photo: 66b68f7 (CHAT mode: text-only, no photo hallucination — 2026-04-12/13)
 git_commit_sha_baseline: b481e3a (feat: add full backend Phase 2 + Render deploy config)
 github_url: https://github.com/nguhoc94-blip/tu-vi-khoa-hoc
 branch: main

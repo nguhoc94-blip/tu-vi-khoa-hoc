@@ -243,3 +243,15 @@ _(Thời gian tăng so với trước debounce do sleep 1.5s trong background pi
 | GitHub repo | **private** |
 | `/health` + `/readiness` sau remediation | OK (2026-04-12) |
 | Rotate secret (OpenAI, FB, DB, Render API, GitHub PAT) | **Owner** — xem checklist tên key trong `Builder_gửi_Engineering.md` § *VÒNG KHẮC PHỤC BẢO MẬT* |
+
+---
+
+## 10. Hotfix luồng lá số + OpenAI birth_extractor (BÁO CÁO E bổ sung — 2026-04-13)
+
+| Mục | Chi tiết |
+|-----|----------|
+| **Triệu chứng** | Bot nói “chưa có lá số”, gợi ý gửi ảnh; không vào INTAKE/GENERATE dù backend có engine lá số |
+| **Nguyên nhân** | `birth_extractor`: `max_tokens` (+ `temperature=0`) không tương thích `gpt-5.4` → lỗi nuốt → `{}`; CHAT prompt không cấm gợi ý ảnh |
+| **Sửa** | `conversation_bridge.py` — ràng buộc text-only; `birth_extractor.py` — `max_completion_tokens`, bỏ `temperature`, model `OPENAI_MODEL` (5.4) |
+| **Git** | `66b68f7`, `d4c1ee8`, `b067535` |
+| **Evidence HEAD** | `b067535` — xem `docs/git_sha_for_evidence.txt` và `Builder_gửi_Engineering.md` § *BÁO CÁO E — BỔ SUNG* |

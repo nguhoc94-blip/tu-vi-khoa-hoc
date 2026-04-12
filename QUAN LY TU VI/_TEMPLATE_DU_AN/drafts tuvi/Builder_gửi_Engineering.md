@@ -1,8 +1,8 @@
 ## BUILDER → ENGINEERING
 Từ: Builder  
 Gửi: Engineering  
-Ngày: 2026-04-11 (**cập nhật: deploy production + vòng bảo mật khẩn cấp — 2026-04-12**)  
-Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production + remediation bảo mật)**  
+Ngày: 2026-04-11 (**cập nhật: deploy production + vòng bảo mật — 2026-04-12; luồng lá số + OpenAI birth_extractor — 2026-04-13**)  
+Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production + remediation bảo mật + hotfix hội thoại/lá số)**  
 
 ---
 
@@ -105,7 +105,50 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 ### 6. Đối chiếu memo Engineering (cập nhật sau deploy)
 
 - **Deploy path Render + runbook:** đã có service thật + runbook vẫn dùng được.
-- **Evidence prod:** URL public + health/readiness như trên; SHA `9f9d874`.
+- **Evidence prod:** URL public + health/readiness như trên; SHA baseline deploy `9f9d874`; **HEAD sau hotfix lá số / OpenAI:** `b067535` (xem § *BÁO CÁO E — BỔ SUNG*).
+
+---
+
+## BÁO CÁO E — BỔ SUNG (Luồng lá số tự động + Meta Messenger + OpenAI API — 2026-04-13)
+
+**Phạm vi:** Các công việc hoàn thành sau báo cáo deploy `9f9d874` — đồng bộ production Render, không mở rộng scope Nhịp 3 ngoài sửa lỗi vận hành / tích hợp.
+
+### 1. Triệu chứng (trước khi sửa)
+
+| Hiện tượng | Ảnh hưởng |
+|-------------|-----------|
+| Bot trả lời kiểu “chưa có lá số đã an sẵn”, gợi ý **gửi ảnh** lá số | Sai với năng lực backend (lá số lập từ text); Messenger **chỉ nhận văn bản** |
+| Người dùng ngoài dev không nhận tin / webhook “không hoạt động” | Cấu hình Meta: webhook dưới sản phẩm User thay vì Messenger; Page chưa subscribe; App **Development** vs **Live**; token Page |
+| Sau reset DB test, vẫn không vào luận giải cá nhân | Luồng code không vào INTAKE → GENERATE |
+
+### 2. Nguyên nhân gốc (code — đã xác minh)
+
+| Thành phần | Nguyên nhân |
+|------------|-------------|
+| **`birth_extractor.py`** | Gọi Chat Completions với `OPENAI_MODEL=gpt-5.4` kèm **`max_tokens`** (và trước đó **`temperature=0`**) → API từ chối / lỗi → `except` nuốt → trả về `{}` → **`birth_data` không bao giờ tích lũy** → router luôn **CHAT**, không **INTAKE / KB-2 / GENERATE** → không lập lá số |
+| **`conversation_bridge.py` — `_mode_chat`** | Prompt CHAT không cấm gợi ý ảnh / không nhấn mạnh “chỉ text + hệ thống tự lập lá số” → LLM **hallucinate** hướng dẫn không tồn tại trên kênh |
+
+### 3. Sửa chữa đã merge & deploy
+
+| File / hạng mục | Nội dung |
+|-----------------|----------|
+| `app/services/conversation_bridge.py` | Bổ sung **ràng buộc kỹ thuật** trong CHAT context: chỉ văn bản; không gợi ý ảnh/file; lá số do hệ thống lập từ họ tên + ngày giờ sinh (text) |
+| `app/services/birth_extractor.py` | Dùng **`max_completion_tokens`** (thay `max_tokens`); **bỏ `temperature`**; model theo **`OPENAI_MODEL`** (prod: `gpt-5.4`), fallback mặc định `gpt-5.4` |
+| **Git** | `66b68f7` — CHAT prompt; `d4c1ee8` — hotfix extractor tạm (4o-mini, bỏ max_tokens); `b067535` — **dùng 5.4 + `max_completion_tokens`** |
+| **Render** | Redeploy sau các push; **HEAD evidence:** `b067535` — service **live**, `/health` ok |
+
+### 4. Meta / Facebook (vận hành — không phải commit code)
+
+Đã hướng dẫn / thực hiện phía owner: Callback URL production (`…/webhook`), Verify Token, **Messenger** (không nhầm **User Webhooks**), subscribe Page (`messages`, `messaging_postbacks`), token Page cập nhật env Render; API subscribe Page qua Graph khi cần; nhắc **Live mode** / **App Review** `pages_messaging` cho user ngoài role app.
+
+### 5. Cơ sở dữ liệu production (theo yêu cầu test)
+
+Đã **TRUNCATE** (giữ schema) các bảng dữ liệu hội thoại / profile / session / dedupe để test “như mới” — **không** xóa `schema_migrations` / `app_config` theo thao tác đã ghi nhận trong phiên Builder.
+
+### 6. Trạng thái cho Engineering
+
+- **Luồng thiết kế** (extract → INTAKE → KB-2 → `process_generate_reading` → chart JSON → GPT luận giải) **khôi phục hoạt động** sau khi API extractor tương thích model 5.4.
+- **Rủi ro còn lại:** chi phí/latency khi mọi tin nhắn đều gọi extractor bằng `gpt-5.4` — có thể tách env `OPENAI_EXTRACTION_MODEL` sau nếu Product muốn tối ưu (đề xuất, chưa làm).
 
 ---
 
