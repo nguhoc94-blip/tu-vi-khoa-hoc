@@ -70,8 +70,8 @@ logger = logging.getLogger(__name__)
 _store = DbMessengerStateStore()
 _reading_store = ReadingStoreDb()
 
-_CONVERSATION_MODEL_DEFAULT = "gpt-4o-mini"
-_CONVERSATION_TIMEOUT = 60.0
+_CONVERSATION_MODEL_DEFAULT = "gpt-5.4"
+_CONVERSATION_TIMEOUT = 90.0
 _HISTORY_CONTEXT_TURNS = 6  # how many turns to send to OpenAI (≤ MAX_HISTORY)
 
 DEFAULT_DONATION_TEXT = "Nếu thấy hữu ích, bạn có thể ủng hộ để dự án duy trì."
@@ -230,9 +230,10 @@ def _call_openai_conversation(
         return text
     except Exception as e:
         logger.warning(
-            "conversation_openai_failed request_id=%s event=conv_failed reason=%s",
+            "conversation_openai_failed request_id=%s event=conv_failed reason=%s detail=%s",
             request_id,
             type(e).__name__,
+            str(e)[:400],
         )
         return "Mình đang gặp sự cố kết nối AI. Bạn thử lại sau nhé."
 

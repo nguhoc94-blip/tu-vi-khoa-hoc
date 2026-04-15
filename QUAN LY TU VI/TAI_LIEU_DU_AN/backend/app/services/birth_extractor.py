@@ -24,8 +24,8 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
-_EXTRACTION_MODEL_DEFAULT = "gpt-5.4"
-_EXTRACTION_TIMEOUT = 10.0
+_EXTRACTION_MODEL_DEFAULT = "gpt-4o-mini"  # cheap model for extraction; override with OPENAI_EXTRACTION_MODEL env
+_EXTRACTION_TIMEOUT = 15.0
 _EXTRACTION_MAX_COMPLETION_TOKENS = 300
 
 # Allowed output keys — anything outside this set is stripped (safety guard)
@@ -92,7 +92,11 @@ def extract_birth_fields(text: str, *, request_id: str) -> dict[str, Any]:
     Returns {} on any error (OpenAI unavailable, invalid JSON, etc.).
     """
     api_key = (os.environ.get("OPENAI_API_KEY") or "").strip()
-    model = (os.environ.get("OPENAI_MODEL") or "").strip() or _EXTRACTION_MODEL_DEFAULT
+    # Use dedicated extraction model if set; fall back to cheap default (not conversation model)
+    model = (
+        (os.environ.get("OPENAI_EXTRACTION_MODEL") or "").strip()
+        or _EXTRACTION_MODEL_DEFAULT
+    )
     if not api_key:
         logger.warning(
             "birth_extractor_skip request_id=%s event=extractor_skip reason=missing_api_key",
@@ -144,8 +148,9 @@ def extract_birth_fields(text: str, *, request_id: str) -> dict[str, Any]:
 
     except Exception as e:
         logger.warning(
-            "birth_extractor_failed request_id=%s event=extractor_failed reason=%s",
+            "birth_extractor_failed request_id=%s event=extractor_failed reason=%s detail=%s",
             request_id,
             type(e).__name__,
+            str(e)[:300],
         )
         return {}

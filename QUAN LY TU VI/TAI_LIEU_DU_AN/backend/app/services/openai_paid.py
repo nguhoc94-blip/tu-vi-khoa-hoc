@@ -15,7 +15,7 @@ from app.services.reading_store_db import ReadingStoreDb
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PAID_MODEL = "gpt-4o-mini"
+DEFAULT_PAID_MODEL = "gpt-5.4"
 PAID_TIMEOUT_SECONDS = 60.0
 PAID_FALLBACK_MESSAGE = "Ban doc day du tam thoi chua san sang. Vui long thu lai sau."
 ALREADY_AVAILABLE_MESSAGE = "Ban doc day du da co san. Neu can, vui long xem lai ket qua moi nhat."
@@ -99,10 +99,10 @@ def _generate_paid_with_openai(
         return True, checked_text
     except Exception as e:
         logger.warning(
-            "openai_paid_fallback request_id=%s event=openai_paid_fallback reason=%s",
+            "openai_paid_fallback request_id=%s event=openai_paid_fallback reason=%s detail=%s",
             request_id,
             type(e).__name__,
-            exc_info=True,
+            str(e)[:400],
         )
         return False, PAID_FALLBACK_MESSAGE
 
