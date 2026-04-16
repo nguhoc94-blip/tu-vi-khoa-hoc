@@ -25,6 +25,11 @@ services:
         sync: false
       - key: OPENAI_MODEL
         sync: false
+      # Tuỳ chọn: model riêng cho birth extract (mặc định code = gpt-4o-mini nếu không set)
+      - key: OPENAI_EXTRACTION_MODEL
+        sync: false
+      - key: PAID_OPENAI_MODEL
+        sync: false
       - key: FB_PAGE_ACCESS_TOKEN
         sync: false
       - key: FB_VERIFY_TOKEN

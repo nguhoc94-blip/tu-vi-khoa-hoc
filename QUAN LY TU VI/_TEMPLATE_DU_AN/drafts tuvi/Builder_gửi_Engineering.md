@@ -1,8 +1,45 @@
 ## BUILDER → ENGINEERING
 Từ: Builder  
 Gửi: Engineering  
-Ngày: 2026-04-11 (**cập nhật: deploy production + vòng bảo mật — 2026-04-12; luồng lá số + OpenAI birth_extractor — 2026-04-13**)  
+Ngày: 2026-04-11 (**cập nhật: deploy production + vòng bảo mật — 2026-04-12; luồng lá số + OpenAI — 2026-04-13; model/timeout/observability — 2026-04-13**)  
 Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy production + remediation bảo mật + hotfix hội thoại/lá số)**  
+
+---
+
+## TỔNG HỢP BÁO CÁO E — NGUỒN CHO ENGINEERING → BÁO CÁO COO
+
+**Mục đích:** Một trang tóm tắt để Engineering copy/ghép vào báo cáo COO; chi tiết đầy đủ nằm ở các mục § *VÒNG KHẮC PHỤC BẢO MẬT*, § *BÁO CÁO E*, § *BÁO CÁO E — BỔ SUNG* và `TAI_LIEU_DU_AN/backend/docs/`.
+
+### Tóm tắt điều hành (1 đoạn)
+
+Backend TuVi Bot đã **triển khai production trên Render** (FastAPI + PostgreSQL managed), **webhook Messenger** trỏ URL public, **conversation bridge 4 lát** + engine lá số deterministic + OpenAI cho hội thoại/luận giải. Đã hoàn thành **vòng remediation bảo mật** (repo private, `.gitignore`, gỡ binary khỏi Git). Đã **hotfix** luồng lá số (birth extractor tương thích API model mới; CHAT không gợi ý ảnh) và **ổn định vận hành** (mặc định model hội thoại `gpt-5.4`, timeout 90s, log lỗi OpenAI có `detail`, tách model extract qua `OPENAI_EXTRACTION_MODEL` / mặc định `gpt-4o-mini`). **Pytest 66/66** đã ghi nhận tại evidence. **Rủi ro còn lại:** Render **free tier** cold sleep (khuyến nghị ping `/health` định kỳ hoặc nâng plan); Meta **Development vs Live** + App Review cho user ngoài role; **rotate secret** theo checklist — owner.
+
+### Bảng trạng thái (COO-friendly)
+
+| Hạng mục | Trạng thái | Bằng chứng / file |
+|----------|------------|-------------------|
+| Deploy production | **Live** | `https://tuvi-backend-ocgd.onrender.com` — § *BÁO CÁO E* |
+| Health / readiness | **OK** | `GET /health`, `GET /readiness` |
+| GitHub repo | **Private** | § *VÒNG KHẮC PHỤC BẢO MẬT* |
+| Webhook URL | **Đã cấu hình** (owner) | `…/webhook` — cần Messenger + subscribe Page |
+| Luồng lá số + OpenAI | **Đã hotfix & redeploy** | § *BÁO CÁO E — BỔ SUNG*; `docs/builder_evidence_nhip3.md` §10 |
+| Test tự động | **66/66** (snapshot) | `docs/pytest_last_run.txt` |
+| HEAD code (tip `main` sau pull) | **`e452ded`** | `git rev-parse origin/main`; `docs/git_sha_for_evidence.txt` |
+
+### Định danh nhanh
+
+| Mục | Giá trị |
+|-----|---------|
+| **GitHub** | `https://github.com/nguhoc94-blip/tu-vi-khoa-hoc` — branch `main` |
+| **Render URL** | `https://tuvi-backend-ocgd.onrender.com` |
+| **Webhook** | `https://tuvi-backend-ocgd.onrender.com/webhook` |
+| **Backend root (repo)** | `QUAN LY TU VI/TAI_LIEU_DU_AN/backend/` |
+
+### Việc Engineering / Product / Owner cần biết (không phải code)
+
+- **COO / vận hành:** Xác nhận smoke prod trên `docs/smoke_checklist_nhip3.md`; Meta Live mode / App Review nếu mở user ngoài tester.
+- **Owner:** Uptime ping `/health` (UptimeRobot hoặc tương đương) nếu muốn tránh cold start free tier; rotate secret theo § *VÒNG KHẮC PHỤC BẢO MẬT* mục 3.
+- **Env gợi ý (Render):** `OPENAI_MODEL=gpt-5.4` (hội thoại + full reading); `OPENAI_EXTRACTION_MODEL` tùy chọn (mặc định code = `gpt-4o-mini` cho extract).
 
 ---
 
@@ -105,7 +142,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 ### 6. Đối chiếu memo Engineering (cập nhật sau deploy)
 
 - **Deploy path Render + runbook:** đã có service thật + runbook vẫn dùng được.
-- **Evidence prod:** URL public + health/readiness như trên; SHA baseline deploy `9f9d874`; **HEAD sau hotfix lá số / OpenAI:** `b067535` (xem § *BÁO CÁO E — BỔ SUNG*).
+- **Evidence prod:** URL public + health/readiness như trên; SHA baseline deploy `9f9d874`; **HEAD sau hotfix lá số + model/ops:** `e452ded` (xem § *TỔNG HỢP BÁO CÁO E* và § *BÁO CÁO E — BỔ SUNG*).
 
 ---
 
@@ -133,9 +170,10 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 | File / hạng mục | Nội dung |
 |-----------------|----------|
 | `app/services/conversation_bridge.py` | Bổ sung **ràng buộc kỹ thuật** trong CHAT context: chỉ văn bản; không gợi ý ảnh/file; lá số do hệ thống lập từ họ tên + ngày giờ sinh (text) |
-| `app/services/birth_extractor.py` | Dùng **`max_completion_tokens`** (thay `max_tokens`); **bỏ `temperature`**; model theo **`OPENAI_MODEL`** (prod: `gpt-5.4`), fallback mặc định `gpt-5.4` |
-| **Git** | `66b68f7` — CHAT prompt; `d4c1ee8` — hotfix extractor tạm (4o-mini, bỏ max_tokens); `b067535` — **dùng 5.4 + `max_completion_tokens`** |
-| **Render** | Redeploy sau các push; **HEAD evidence:** `b067535` — service **live**, `/health` ok |
+| `app/services/birth_extractor.py` | **`max_completion_tokens`** (không dùng `max_tokens`); **bỏ `temperature`**; model qua **`OPENAI_EXTRACTION_MODEL`** hoặc mặc định **`gpt-4o-mini`** (tách khỏi hội thoại) |
+| `conversation_bridge.py` / `openai_paid.py` (sau `e452ded`) | Mặc định **`gpt-5.4`**; timeout hội thoại **90s**; log lỗi OpenAI kèm **`detail=`** (chuẩn bị observability) |
+| **Git** | `66b68f7` — CHAT prompt; `d4c1ee8`/`b067535` — extractor API; **`e452ded`** — model/timeout/logging + tách extract model |
+| **Render** | Redeploy sau các push; **HEAD evidence:** **`e452ded`** — service **live**, `/health` ok |
 
 ### 4. Meta / Facebook (vận hành — không phải commit code)
 
@@ -148,7 +186,7 @@ Phase: Phase 2 / **Nhịp 3 — BUILDER REPORT (thi công xong + deploy producti
 ### 6. Trạng thái cho Engineering
 
 - **Luồng thiết kế** (extract → INTAKE → KB-2 → `process_generate_reading` → chart JSON → GPT luận giải) **khôi phục hoạt động** sau khi API extractor tương thích model 5.4.
-- **Rủi ro còn lại:** chi phí/latency khi mọi tin nhắn đều gọi extractor bằng `gpt-5.4` — có thể tách env `OPENAI_EXTRACTION_MODEL` sau nếu Product muốn tối ưu (đề xuất, chưa làm).
+- **Rủi ro còn lại:** Render **free** cold start — có thể timeout lần đầu; khuyến nghị ping `/health` hoặc paid plan. Extract đã tách model rẻ (`gpt-4o-mini` mặc định) qua `OPENAI_EXTRACTION_MODEL`.
 
 ---
 

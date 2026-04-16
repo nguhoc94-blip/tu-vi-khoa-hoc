@@ -246,12 +246,12 @@ _(Thời gian tăng so với trước debounce do sleep 1.5s trong background pi
 
 ---
 
-## 10. Hotfix luồng lá số + OpenAI birth_extractor (BÁO CÁO E bổ sung — 2026-04-13)
+## 10. Hotfix luồng lá số + OpenAI (BÁO CÁO E bổ sung — 2026-04-13)
 
 | Mục | Chi tiết |
 |-----|----------|
-| **Triệu chứng** | Bot nói “chưa có lá số”, gợi ý gửi ảnh; không vào INTAKE/GENERATE dù backend có engine lá số |
-| **Nguyên nhân** | `birth_extractor`: `max_tokens` (+ `temperature=0`) không tương thích `gpt-5.4` → lỗi nuốt → `{}`; CHAT prompt không cấm gợi ý ảnh |
-| **Sửa** | `conversation_bridge.py` — ràng buộc text-only; `birth_extractor.py` — `max_completion_tokens`, bỏ `temperature`, model `OPENAI_MODEL` (5.4) |
-| **Git** | `66b68f7`, `d4c1ee8`, `b067535` |
-| **Evidence HEAD** | `b067535` — xem `docs/git_sha_for_evidence.txt` và `Builder_gửi_Engineering.md` § *BÁO CÁO E — BỔ SUNG* |
+| **Triệu chứng** | Bot nói “chưa có lá số”, gợi ý gửi ảnh; không vào INTAKE/GENERATE; đôi khi “sự cố kết nối AI” (timeout / cold Render) |
+| **Nguyên nhân** | `birth_extractor`: `max_tokens` (+ `temperature=0`) không tương thích API → lỗi nuốt → `{}`; CHAT prompt không cấm gợi ý ảnh; hội thoại timeout ngắn trên free tier |
+| **Sửa** | `conversation_bridge` — text-only; `birth_extractor` — `max_completion_tokens`, `OPENAI_EXTRACTION_MODEL` / mặc định `gpt-4o-mini`; hội thoại mặc định `gpt-5.4`, timeout 90s, log `detail=`; `openai_paid` mặc định `gpt-5.4` |
+| **Git** | `66b68f7`, `d4c1ee8`, `b067535`, `17a98ba` (docs), **`e452ded`** (model/timeout/logging) |
+| **Evidence HEAD** | **`e452ded`** — xem `docs/git_sha_for_evidence.txt` và `Builder_gửi_Engineering.md` § *TỔNG HỢP BÁO CÁO E* |
